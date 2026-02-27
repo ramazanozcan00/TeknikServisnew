@@ -39,7 +39,7 @@ namespace TeknikServis.Infrastructure.Persistence.Repositories
                           join d in _context.Devices on wo.DeviceId equals d.Id
                           join c in _context.Customers on d.CustomerId equals c.Id
                           where wo.Id == id
-                          select new WorkOrderDetailDto(
+                          select new WorkOrderDetailDto (
                               wo.Id,
                               wo.WorkOrderNo,
                               wo.Description,
