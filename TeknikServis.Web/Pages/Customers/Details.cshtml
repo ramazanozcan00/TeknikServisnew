@@ -1,0 +1,168 @@
+﻿@page "{id:Guid}"
+@model TeknikServis.Web.Pages.Customers.DetailsModel
+@{
+    ViewData["Title"] = "Müşteri Profili ve Cihazlar";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title">Müşteri Profili</h2>
+    </div>
+    <div class="col-auto ms-auto">
+        <a asp-page="/Customers/Index" class="btn btn-ghost-secondary">
+            <i class="ti ti-arrow-left me-2"></i> Listeye Dön
+        </a>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <span class="avatar avatar-xl mb-3 rounded bg-primary-lt">
+                    @Model.Customer.FirstName.Substring(0, 1)@Model.Customer.LastName.Substring(0, 1)
+                </span>
+                <h3 class="m-0 mb-1">@Model.Customer.FirstName @Model.Customer.LastName</h3>
+                <div class="text-muted">@Model.Customer.Email</div>
+                <div class="mt-3">
+                    <span class="badge bg-success-lt">Aktif Müşteri</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-borderless mt-3 mx-3 mb-3">
+                    <tr><td class="text-muted"><i class="ti ti-phone me-2"></i> Telefon:</td><td>@Model.Customer.PhoneNumber</td></tr>
+                    <tr><td class="text-muted"><i class="ti ti-id me-2"></i> TC/Vergi:</td><td>@Model.Customer.TaxNumber</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-devices me-2"></i> Kayıtlı Cihazlar</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>Tür</th>
+                            <th>Marka / Model</th>
+                            <th>Seri No</th>
+                            <th>Kayıt Tarihi</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Devices.Any())
+                        {
+                            foreach (var device in Model.Devices)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-secondary-lt">@device.DeviceType</span></td>
+                                    <td><strong>@device.Brand</strong> <div class="text-muted">@device.Model</div></td>
+                                    <td class="text-muted">@device.SerialNumber</td>
+                                    <td>@device.CreatedAt.ToShortDateString()</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="setWorkOrderDeviceId('@device.Id')" data-bs-toggle="modal" data-bs-target="#modal-workorder">
+                                            <i class="ti ti-tool me-1"></i> İş Emri Aç
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">Bu müşteriye ait cihaz bulunmuyor.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-primary-lt">
+                <h3 class="card-title"><i class="ti ti-plus me-2"></i> Yeni Cihaz Kaydet</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.DeviceType" class="form-label required">Cihaz Türü</label>
+                            <select asp-for="Input.DeviceType" class="form-select">
+                                <option value="">Seçiniz...</option>
+                                <option value="Akıllı Telefon">Akıllı Telefon</option>
+                                <option value="Dizüstü Bilgisayar">Dizüstü Bilgisayar</option>
+                                <option value="Masaüstü Bilgisayar">Masaüstü Bilgisayar</option>
+                                <option value="Tablet">Tablet</option>
+                            </select>
+                            <span asp-validation-for="Input.DeviceType" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.SerialNumber" class="form-label required">Seri Numarası</label>
+                            <input asp-for="Input.SerialNumber" class="form-control" placeholder="Benzersiz Seri No" />
+                            <span asp-validation-for="Input.SerialNumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Brand" class="form-label required">Marka</label>
+                            <input asp-for="Input.Brand" class="form-control" placeholder="Örn: Apple, HP" />
+                            <span asp-validation-for="Input.Brand" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Model" class="form-label required">Model</label>
+                            <input asp-for="Input.Model" class="form-control" placeholder="Örn: iPhone 13" />
+                            <span asp-validation-for="Input.Model" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="Input.Note" class="form-label">Genel Notlar / Hasar Durumu (Opsiyonel)</label>
+                            <textarea asp-for="Input.Note" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-device-floppy me-2"></i> Cihazı Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="modal-workorder" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-lt">
+                <h5 class="modal-title"><i class="ti ti-tool me-2"></i> Yeni Arıza Kaydı (İş Emri) Başlat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="CreateWorkOrder">
+                <div class="modal-body">
+                    <input type="hidden" asp-for="WorkOrderInput.DeviceId" id="hiddenDeviceId" />
+
+                    <div class="mb-3">
+                        <label class="form-label required">Müşterinin Şikayeti / Arıza Açıklaması</label>
+                        <textarea asp-for="WorkOrderInput.Description" class="form-control" rows="4" placeholder="Örn: Cihaz şarj almıyor, ekranın sağ üst köşesinde kararma var..." required></textarea>
+                        <small class="form-hint">Lütfen arızayı olabildiğince detaylı yazın. Teknisyen bu nota göre işlem yapacaktır.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        İptal
+                    </button>
+                    <button type="submit" class="btn btn-warning ms-auto">
+                        <i class="ti ti-device-floppy me-2"></i> İş Emrini Başlat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function setWorkOrderDeviceId(deviceId) {
+            document.getElementById('hiddenDeviceId').value = deviceId;
+        }
+    </script>
+}

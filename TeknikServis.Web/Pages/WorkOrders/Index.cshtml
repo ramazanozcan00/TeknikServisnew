@@ -1,0 +1,91 @@
+﻿@page
+@model TeknikServis.Web.Pages.WorkOrders.IndexModel
+@using TeknikServis.Domain.Enums
+@{
+    ViewData["Title"] = "Atölye (Kanban) Panosu";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-layout-kanban me-2"></i> Aktif İş Emirleri (Atölye)</h2>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-12 col-lg-4">
+        <div class="card bg-dark-lt">
+            <div class="card-header bg-danger text-white">
+                <h3 class="card-title">Bekliyor (Sırada)</h3>
+                <span class="badge bg-white text-danger ms-auto">@Model.WorkOrders.Count(x => x.Status == WorkOrderStatus.Bekliyor)</span>
+            </div>
+            <div class="card-body p-2" style="min-height: 70vh;">
+                @foreach (var wo in Model.WorkOrders.Where(x => x.Status == WorkOrderStatus.Bekliyor))
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-secondary-lt"><i class="ti ti-device-mobile me-1"></i> @wo.DeviceInfo</span>
+                        <span class="fw-bold text-muted">@wo.WorkOrderNo</span>
+                    </div>
+
+                    <div class="text-end mt-3">
+                        <form method="post" asp-page-handler="ChangeStatus">
+                            <input type="hidden" name="id" value="@wo.Id" />
+                            <input type="hidden" name="status" value="@(WorkOrderStatus.Onarimda)" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">İncelemeye Al</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card bg-dark-lt">
+            <div class="card-header bg-warning text-white">
+                <h3 class="card-title">Onarımda (Masada)</h3>
+                <span class="badge bg-white text-warning ms-auto">@Model.WorkOrders.Count(x => x.Status == WorkOrderStatus.Onarimda)</span>
+            </div>
+            <div class="card-body p-2" style="min-height: 70vh;">
+                @foreach (var wo in Model.WorkOrders.Where(x => x.Status == WorkOrderStatus.Onarimda))
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="badge bg-secondary-lt"><i class="ti ti-device-mobile me-1"></i> @wo.DeviceInfo</span>
+                        <span class="fw-bold text-muted">@wo.WorkOrderNo</span>
+                    </div>
+
+                    <div class="text-end mt-3">
+                        <form method="post" asp-page-handler="ChangeStatus">
+                            <input type="hidden" name="id" value="@wo.Id" />
+                            <input type="hidden" name="status" value="@(WorkOrderStatus.Tamamlandi)" />
+                            <button type="submit" class="btn btn-sm btn-outline-warning w-100">Onarımı Tamamla</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card bg-dark-lt">
+            <div class="card-header bg-success text-white">
+                <h3 class="card-title">Tamamlandı (Teslim Bekliyor)</h3>
+                <span class="badge bg-white text-success ms-auto">@Model.WorkOrders.Count(x => x.Status == WorkOrderStatus.Tamamlandi)</span>
+            </div>
+            <div class="card-body p-2" style="min-height: 70vh;">
+                @foreach (var wo in Model.WorkOrders.Where(x => x.Status == WorkOrderStatus.Tamamlandi))
+                {
+                    <div class="card mb-2 shadow-sm border-start border-success border-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-secondary-lt"><i class="ti ti-device-mobile me-1"></i> @wo.DeviceInfo</span>
+                            </div>
+                            <h4 class="mb-1">@wo.CustomerFullName</h4>
+                            <div class="text-end mt-3">
+                                <button class="btn btn-sm btn-outline-success w-100">Müşteriye Teslim Et</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

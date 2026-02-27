@@ -1,0 +1,45 @@
+﻿@page "{id:Guid}"
+@model TeknikServis.Web.Pages.Customers.EditModel
+@{
+    ViewData["Title"] = "Müşteri Düzenle";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col"><h2 class="page-title">Müşteri Düzenle</h2></div>
+    <div class="col-auto ms-auto">
+        <a asp-page="/Customers/Index" class="btn btn-ghost-secondary">
+            <i class="ti ti-arrow-left me-2"></i> İptal
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form method="post" class="card">
+            <input type="hidden" asp-for="Input.Id" />
+            <div class="card-body">
+                <div class="row row-cards">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.FirstName" class="form-label">Adı</label>
+                        <input asp-for="Input.FirstName" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.LastName" class="form-label">Soyadı</label>
+                        <input asp-for="Input.LastName" class="form-control" />
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Input.Email" class="form-label">E-Posta</label>
+                        <input asp-for="Input.Email" class="form-control" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label">Telefon</label>
+                        <input asp-for="Input.PhoneNumber" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">Değişiklikleri Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
