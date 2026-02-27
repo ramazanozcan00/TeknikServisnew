@@ -1,0 +1,158 @@
+﻿@page "{id:Guid}"
+@model TeknikServis.Web.Pages.WorkOrders.DetailsModel
+@using TeknikServis.Domain.Enums
+@{
+    ViewData["Title"] = "İş Emri Detayları";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title">İş Emri Operasyon Ekranı</h2>
+        <div class="text-muted mt-1">Kayıt No: <span class="fw-bold">@Model.Detail.WorkOrderNo</span></div>
+    </div>
+    <div class="col-auto ms-auto d-print-none">
+        <div class="d-flex gap-2">
+            <a asp-page="/WorkOrders/Receipt" asp-route-id="@Model.Detail.Id" class="btn btn-outline-primary" target="_blank">
+                <i class="ti ti-printer me-2"></i> Servis Fişi Yazdır
+            </a>
+            <a asp-page="/WorkOrders/Index" class="btn btn-ghost-secondary">
+                <i class="ti ti-arrow-left me-2"></i> Panoya Dön
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <div class="d-flex">
+            <div><i class="ti ti-check me-2" style="font-size:1.5rem;"></i></div>
+            <div>@TempData["SuccessMessage"]</div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <div class="d-flex">
+            <div><i class="ti ti-alert-triangle me-2" style="font-size:1.5rem;"></i></div>
+            <div>@TempData["ErrorMessage"]</div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+}
+
+<div class="row row-cards">
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header bg-dark text-white">
+                <h3 class="card-title">Müşteri ve Cihaz Bilgileri</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="text-muted mb-1">Müşteri Adı:</div>
+                    <div class="fs-3 fw-bold">@Model.Detail.CustomerFullName</div>
+                    <div class="text-muted"><i class="ti ti-phone me-1"></i> @Model.Detail.CustomerPhone</div>
+                </div>
+                <hr />
+                <div class="mb-3">
+                    <div class="text-muted mb-1">Cihaz Modeli:</div>
+                    <div class="fs-3 fw-bold">@Model.Detail.DeviceBrand @Model.Detail.DeviceModel</div>
+                    <div class="text-muted">Seri No: @Model.Detail.DeviceSerial</div>
+                </div>
+                <hr />
+                <div>
+                    <div class="text-muted mb-1">Açılış Tarihi:</div>
+                    <div>@Model.Detail.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-danger border-2">
+            <div class="card-body">
+                <h4 class="card-title text-danger"><i class="ti ti-alert-triangle me-2"></i> Müşteri Şikayeti / Arıza</h4>
+                <p class="mb-0 fs-4">@Model.Detail.Description</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+
+        <div class="card mb-3 border-top border-success border-3">
+            <div class="card-header bg-success-lt">
+                <h3 class="card-title"><i class="ti ti-box me-2"></i> Yedek Parça / Stok Kullan</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="AddPart">
+                    <input type="hidden" asp-for="PartInput.WorkOrderId" />
+                    <div class="row align-items-end">
+                        <div class="col-md-7 mb-2">
+                            <label class="form-label fw-bold">Kullanılan Parça (Depodan)</label>
+                            <select asp-for="PartInput.SparePartId" asp-items="Model.AvailableSpareParts" class="form-select form-select-lg" required>
+                                <option value="">-- Stoktan Yedek Parça Seçin --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label fw-bold">Adet</label>
+                            <input asp-for="PartInput.Quantity" type="number" class="form-control form-control-lg text-center" min="1" value="1" required />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="ti ti-plus me-2"></i> Ekle
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-muted mt-2 small">
+                        <i class="ti ti-info-circle text-success"></i> Parçayı eklediğinizde stoktan <b>otomatik düşülecek</b> ve fiyatı alttaki <b>toplam tutara</b> yansıtılacaktır.
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-primary-lt">
+                <h3 class="card-title"><i class="ti ti-tool me-2"></i> Teknik Servis İşlemleri</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" asp-for="Input.Id" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold">İş Emri Durumu</label>
+                            <select asp-for="Input.Status" class="form-select form-select-lg">
+                                <option value="@WorkOrderStatus.Bekliyor">Bekliyor (Sırada)</option>
+                                <option value="@WorkOrderStatus.Onarimda">Onarımda (Masada)</option>
+                                <option value="@WorkOrderStatus.Tamamlandi">Tamamlandı (Teslim Bekliyor)</option>
+                                <option value="@WorkOrderStatus.TeslimEdildi">Müşteriye Teslim Edildi</option>
+                                <option value="@WorkOrderStatus.IptalEdildi">İptal Edildi</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold">Toplam Tutar (TL)</label>
+                            <div class="input-group input-group-flat">
+                                <span class="input-group-text bg-light text-success fw-bold">₺</span>
+                                <input asp-for="Input.TotalPrice" type="number" step="0.01" class="form-control form-control-lg text-success fw-bold" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Teknisyen Notları / Yapılan İşlemler</label>
+                        <textarea asp-for="Input.TechnicianNotes" class="form-control" rows="8"></textarea>
+                        <small class="form-hint">Bu alana yazılan notlar arıza takip ekranında görünecektir.</small>
+                    </div>
+
+                    <div class="text-end border-top pt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="ti ti-device-floppy me-2"></i> İşlemi Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

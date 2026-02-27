@@ -1,10 +1,102 @@
 ﻿@page
-@model IndexModel
+@model TeknikServis.Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Ana Sayfa - Yönetim Paneli";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <div class="page-pretitle">Genel Bakış</div>
+        <h2 class="page-title">İşletme İstatistikleri</h2>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0 border-start border-primary border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-primary text-white avatar">
+                            <i class="ti ti-users fs-2"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium text-uppercase text-muted">Kayıtlı Müşteri</div>
+                        <div class="fs-1 fw-bold text-dark">@Model.Stats.TotalCustomers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0 border-start border-info border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-info text-white avatar">
+                            <i class="ti ti-devices fs-2"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium text-uppercase text-muted">Kayıtlı Cihaz</div>
+                        <div class="fs-1 fw-bold text-dark">@Model.Stats.TotalDevices</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0 border-start border-warning border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-warning text-white avatar">
+                            <i class="ti ti-tool fs-2"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium text-uppercase text-muted">Aktif İş Emri</div>
+                        <div class="fs-1 fw-bold text-dark">@Model.Stats.ActiveWorkOrders</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0 border-start border-success border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-success text-white avatar">
+                            <i class="ti ti-check fs-2"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium text-uppercase text-muted">Tamamlanan İş</div>
+                        <div class="fs-1 fw-bold text-dark">@Model.Stats.CompletedWorkOrders</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="ti ti-rocket text-primary mb-3" style="font-size: 4rem;"></i>
+                <h3 class="mb-2">Sistem Başarıyla Çalışıyor!</h3>
+                <p class="text-muted">Tüm modüller aktif. Üst menüyü kullanarak işlemlerinize başlayabilirsiniz.</p>
+                <div class="mt-4">
+                    <a asp-page="/WorkOrders/Index" class="btn btn-primary">Atölye Panosuna Git</a>
+                    <a asp-page="/Customers/Create" class="btn btn-outline-primary ms-2">Yeni Müşteri Ekle</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

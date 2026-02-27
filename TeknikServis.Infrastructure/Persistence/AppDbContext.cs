@@ -20,7 +20,9 @@ namespace TeknikServis.Infrastructure.Persistence
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<WorkOrder> WorkOrders { get; set; }
-
+        public DbSet<SparePart> SpareParts { get; set; }
+        public DbSet<WorkOrderSparePart> WorkOrderSpareParts { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Identity tablolarının (AspNetUsers vs.) oluşması için ŞART!

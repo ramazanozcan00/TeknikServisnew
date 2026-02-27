@@ -1,5 +1,8 @@
 ﻿using Mapster;
 using MediatR;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using TeknikServis.Application.Common.Models;
 using TeknikServis.Application.Features.Customers.DTOs;
 using TeknikServis.Application.Interfaces;
@@ -16,8 +19,12 @@ namespace TeknikServis.Application.Features.Customers.Queries
 
         public async Task<Result<CustomerDto>> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
         {
+            // GetAll ve EF Core metotları yerine sadece temiz GetByIdAsync kullanıyoruz
             var customer = await _repository.GetByIdAsync(request.Id, cancellationToken);
+
             if (customer == null) return Result<CustomerDto>.Failure("Müşteri bulunamadı.");
+
+            // Mapster otomatik olarak dönüştürür
             return Result<CustomerDto>.Success(customer.Adapt<CustomerDto>());
         }
     }

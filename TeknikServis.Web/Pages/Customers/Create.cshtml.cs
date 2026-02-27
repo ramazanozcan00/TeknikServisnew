@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 using TeknikServis.Application.Features.Customers.Commands;
 
 namespace TeknikServis.Web.Pages.Customers
@@ -9,60 +10,61 @@ namespace TeknikServis.Web.Pages.Customers
     {
         private readonly IMediator _mediator;
 
-        // Dependency Injection ile MediatR'ý çaðýrýyoruz
-        public CreateModel(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public CreateModel(IMediator mediator) => _mediator = mediator;
 
-        // HTML formundan gelecek verileri bu modele baðlayacaðýz ([BindProperty] bunu saðlar)
         [BindProperty]
-        public CustomerInputModel Input { get; set; } = new();
+        public CreateInputModel Input { get; set; } = new();
 
-        // Sayfa ilk açýldýðýnda çalýþýr (Boþ form gösterir)
-        public void OnGet()
+        public class CreateInputModel
         {
+            [Required(ErrorMessage = "Ad alaný zorunludur.")]
+            public string FirstName { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Soyad alaný zorunludur.")]
+            public string LastName { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "E-Posta zorunludur.")]
+            [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
+            public string Email { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Telefon numarasý zorunludur.")]
+            public string PhoneNumber { get; set; } = string.Empty;
+
+            // Yeni Alanlar
+            public string? TaxNumber { get; set; }
+            public string? TaxOffice { get; set; }
+            public string? Address { get; set; }
+            public string? Notes { get; set; }
         }
 
-        // Formdaki "Kaydet" butonuna basýldýðýnda çalýþýr
+        public void OnGet() { }
+
         public async Task<IActionResult> OnPostAsync()
         {
-            // Eðer form kurallarýmýza uymazsa (örn: boþ isim), ayný sayfayý hatalarla geri döndür
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            if (!ModelState.IsValid) return Page();
 
-            // Arayüzden gelen verileri, Application katmanýndaki Command paketimize yüklüyoruz
+            // Formdan gelen tüm verileri Kuryeye veriyoruz
             var command = new CreateCustomerCommand(
                 Input.FirstName,
                 Input.LastName,
                 Input.Email,
                 Input.PhoneNumber,
-                Input.TaxNumber);
+                Input.TaxNumber,
+                Input.TaxOffice,
+                Input.Address,
+                Input.Notes
+            );
 
-            // MediatR kuryemizi yola çýkarýyoruz!
             var result = await _mediator.Send(command);
 
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Müþteri baþarýyla sisteme kaydedildi."; // YENÝ EKLENEN
+                TempData["SuccessMessage"] = "Müþteri baþarýyla eklendi ve Cari Kod atandý.";
                 return RedirectToPage("/Customers/Index");
             }
 
-            // Eðer veritabaný kayýt aþamasýnda özel bir hata dönerse, ekranda göster
-            ModelState.AddModelError(string.Empty, result.ErrorMessage!);
+            ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Bir hata oluþtu.");
             return Page();
-        }
-
-        // Sadece formda veri taþýmak için kullandýðýmýz basit bir sýnýf
-        public class CustomerInputModel
-        {
-            public string FirstName { get; set; } = string.Empty;
-            public string LastName { get; set; } = string.Empty;
-            public string Email { get; set; } = string.Empty;
-            public string PhoneNumber { get; set; } = string.Empty;
-            public string TaxNumber { get; set; } = string.Empty;
         }
     }
 }

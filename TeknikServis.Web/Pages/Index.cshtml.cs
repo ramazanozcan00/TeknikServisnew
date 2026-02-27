@@ -1,20 +1,24 @@
-using Microsoft.AspNetCore.Mvc;
+using MediatR;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TeknikServis.Application.Features.Dashboard.DTOs;
+using TeknikServis.Application.Features.Dashboard.Queries;
 
 namespace TeknikServis.Web.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly IMediator _mediator;
+        public IndexModel(IMediator mediator) => _mediator = mediator;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public DashboardStatsDto Stats { get; set; } = new(0, 0, 0, 0);
+
+        public async Task OnGetAsync()
         {
-            _logger = logger;
-        }
-
-        public void OnGet()
-        {
-
+            var result = await _mediator.Send(new GetDashboardStatsQuery());
+            if (result.IsSuccess && result.Data != null)
+            {
+                Stats = result.Data;
+            }
         }
     }
 }

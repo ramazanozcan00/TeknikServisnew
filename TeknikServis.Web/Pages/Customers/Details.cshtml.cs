@@ -7,6 +7,8 @@ using TeknikServis.Application.Features.Devices.Commands;
 using TeknikServis.Application.Features.Devices.DTOs;
 using TeknikServis.Application.Features.Devices.Queries;
 using TeknikServis.Application.Features.WorkOrders.Commands;
+using TeknikServis.Application.Features.WorkOrders.DTOs;
+using TeknikServis.Application.Features.WorkOrders.Queries;
 
 namespace TeknikServis.Web.Pages.Customers
 {
@@ -17,7 +19,7 @@ namespace TeknikServis.Web.Pages.Customers
 
         public CustomerDto Customer { get; set; } = null!;
         public List<DeviceDto> Devices { get; set; } = new();
-
+        public List<WorkOrderBoardDto> WorkOrders { get; set; } = new();
         [BindProperty]
         public DeviceInputModel Input { get; set; } = new();
 
@@ -33,7 +35,12 @@ namespace TeknikServis.Web.Pages.Customers
             {
                 Devices = devicesResult.Data;
             }
-
+            // Müþterinin Ýþ Emirlerini (Geçmiþ ve Aktif) Getir
+            var workOrdersResult = await _mediator.Send(new GetWorkOrdersByCustomerIdQuery(id));
+            if (workOrdersResult.IsSuccess && workOrdersResult.Data != null)
+            {
+                WorkOrders = workOrdersResult.Data;
+            }
             return Page();
         }
 

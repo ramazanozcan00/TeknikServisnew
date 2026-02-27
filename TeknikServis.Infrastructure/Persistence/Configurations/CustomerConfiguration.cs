@@ -8,31 +8,19 @@ namespace TeknikServis.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
-            // Tablo adı (Opsiyonel, yazmazsan varsayılan olarak 'Customers' olur)
-            builder.ToTable("Customers");
-
-            // Primary Key (Birincil Anahtar)
             builder.HasKey(x => x.Id);
 
-            // Sütun özellikleri
-            builder.Property(x => x.FirstName)
-                .IsRequired()
-                .HasMaxLength(50);
+            builder.Property(x => x.CustomerCode).IsRequired().HasMaxLength(50);
+            builder.HasIndex(x => x.CustomerCode).IsUnique(); // Cari kod benzersiz olmalı
 
-            builder.Property(x => x.LastName)
-                .IsRequired()
-                .HasMaxLength(50);
-
-            builder.Property(x => x.Email)
-                .IsRequired()
-                .HasMaxLength(150);
-
-            builder.Property(x => x.PhoneNumber)
-                .IsRequired()
-                .HasMaxLength(20);
-
-            // Email adresinin veritabanında tekrar etmemesi için Index atıyoruz
-            builder.HasIndex(x => x.Email).IsUnique();
+            builder.Property(x => x.FirstName).IsRequired().HasMaxLength(100);
+            builder.Property(x => x.LastName).IsRequired().HasMaxLength(100);
+            builder.Property(x => x.Email).IsRequired().HasMaxLength(150);
+            builder.Property(x => x.PhoneNumber).IsRequired().HasMaxLength(20);
+            builder.Property(x => x.TaxNumber).HasMaxLength(50);
+            builder.Property(x => x.TaxOffice).HasMaxLength(100);
+            builder.Property(x => x.Address).HasMaxLength(500);
+            builder.Property(x => x.Notes).HasMaxLength(1000);
         }
     }
 }

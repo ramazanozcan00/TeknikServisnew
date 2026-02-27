@@ -39,7 +39,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IWorkOrderQueryRepository, WorkOrderQueryRepository>();
-
+builder.Services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>(); // YENÝ EKLENDÝ
 // --- 5. MEDIATR TANITMA ---
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateCustomerCommand).Assembly));
 
@@ -67,23 +67,20 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 // --- ÝLK ADMIN KULLANICISINI OLUÞTURMA (SEED) ---
+
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-    var adminEmail = "admin@teknikservis.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-    if (adminUser == null)
+    if (!userManager.Users.Any())
     {
-        adminUser = new ApplicationUser
+        var adminUser = new ApplicationUser
         {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true
+            UserName = "admin@teknikservis.com",
+            Email = "admin@teknikservis.com",
+            FirstName = "Sistem",
+            LastName = "Yöneticisi"
         };
-
-        await userManager.CreateAsync(adminUser, "123456");
+        await userManager.CreateAsync(adminUser, "Admin123!"); // Þifremiz: Admin123!
     }
 }
 

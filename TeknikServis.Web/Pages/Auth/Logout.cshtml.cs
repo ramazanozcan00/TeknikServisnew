@@ -14,7 +14,8 @@ namespace TeknikServis.Web.Pages.Auth
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> OnGet()
+        // OnGet yerine OnPostAsync yapýyoruz çünkü layout'tan POST isteði geliyor
+        public async Task<IActionResult> OnPostAsync()
         {
             await _signInManager.SignOutAsync();
             return RedirectToPage("/Auth/Login");

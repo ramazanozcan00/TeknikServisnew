@@ -1,11 +1,25 @@
 ﻿using MediatR;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using TeknikServis.Application.Common.Models;
 using TeknikServis.Application.Interfaces;
 using TeknikServis.Domain.Entities;
 
 namespace TeknikServis.Application.Features.Customers.Commands
 {
-    public record UpdateCustomerCommand(Guid Id, string FirstName, string LastName, string Email, string PhoneNumber) : IRequest<Result<Guid>>;
+    // Komuta yeni eklenen alanları (TaxNumber, TaxOffice, Address, Notes) dahil ettik
+    public record UpdateCustomerCommand(
+        Guid Id,
+        string FirstName,
+        string LastName,
+        string Email,
+        string PhoneNumber,
+        string? TaxNumber,
+        string? TaxOffice,
+        string? Address,
+        string? Notes
+    ) : IRequest<Result<Guid>>;
 
     public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, Result<Guid>>
     {
@@ -23,8 +37,17 @@ namespace TeknikServis.Application.Features.Customers.Commands
             var customer = await _repository.GetByIdAsync(request.Id, cancellationToken);
             if (customer == null) return Result<Guid>.Failure("Müşteri bulunamadı.");
 
-            // Domain katmanındaki Update metodumuzu tetikliyoruz
-            customer.Update(request.FirstName, request.LastName, request.Email, request.PhoneNumber);
+            // Domain katmanındaki Update metodumuzu TÜM parametrelerle sırasıyla tetikliyoruz
+            customer.Update(
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.PhoneNumber,
+                request.TaxNumber,    // Yeni
+                request.TaxOffice,    // Yeni
+                request.Address,      // Yeni
+                request.Notes         // Yeni
+            );
 
             _repository.Update(customer);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,61 @@
+﻿@page
+@model TeknikServis.Web.Pages.SpareParts.CreateModel
+@{
+    ViewData["Title"] = "Yeni Parça Ekle";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-box me-2"></i> Depoya Yeni Ürün Ekle</h2>
+    </div>
+    <div class="col-auto ms-auto d-print-none">
+        <a asp-page="/SpareParts/Index" class="btn btn-ghost-secondary">Listeye Dön</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Name" class="form-label required">Yedek Parça Adı</label>
+                    <input asp-for="Input.Name" class="form-control" placeholder="Örn: iPhone 13 Orijinal Batarya" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.Code" class="form-label required">Stok Kodu / Barkod</label>
+                    <input asp-for="Input.Code" class="form-control" placeholder="Örn: BAT-IPH13-001" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.PurchasePrice" class="form-label">Alış Fiyatı (Maliyet)</label>
+                    <div class="input-group"><span class="input-group-text">₺</span><input asp-for="Input.PurchasePrice" type="number" step="0.01" class="form-control" /></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.SalePrice" class="form-label">Satış Fiyatı (Müşteriye)</label>
+                    <div class="input-group"><span class="input-group-text">₺</span><input asp-for="Input.SalePrice" type="number" step="0.01" class="form-control" /></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Input.StockQuantity" class="form-label required">Başlangıç Stok Miktarı</label>
+                    <input asp-for="Input.StockQuantity" type="number" class="form-control" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Input.Unit" class="form-label">Birim</label>
+                    <select asp-for="Input.Unit" class="form-select">
+                        <option value="Adet">Adet</option>
+                        <option value="Metre">Metre</option>
+                        <option value="Gram">Gram</option>
+                        <option value="Kutu">Kutu</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Input.CriticalStockLevel" class="form-label">Kritik Stok Uyarısı</label>
+                    <input asp-for="Input.CriticalStockLevel" type="number" class="form-control" />
+                    <small class="form-hint">Stok bu rakamın altına düşerse sistem uyarır.</small>
+                </div>
+            </div>
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-2"></i> Stoka Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>

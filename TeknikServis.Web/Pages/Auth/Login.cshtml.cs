@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization; // 1. BU SATIRI EKLE
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,6 +7,7 @@ using TeknikServis.Infrastructure.Persistence.Identity;
 
 namespace TeknikServis.Web.Pages.Auth
 {
+    [AllowAnonymous] // 2. BU ETÝKETÝ EKLE (Sonsuz döngüyü çözen anahtar budur)
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -26,6 +28,9 @@ namespace TeknikServis.Web.Pages.Auth
 
             [Required]
             public string Password { get; set; }
+
+            // YENÝ EKLENEN SATIR: Tasarýmdaki onay kutusunu burasý yakalayacak
+            public bool RememberMe { get; set; }
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -33,14 +38,15 @@ namespace TeknikServis.Web.Pages.Auth
             if (!ModelState.IsValid)
                 return Page();
 
+            // true yerine Input.RememberMe yazdýk
             var result = await _signInManager.PasswordSignInAsync(
                 Input.Email,
                 Input.Password,
-                true,
+                Input.RememberMe,
                 false);
 
             if (result.Succeeded)
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Index"); // Veya "/WorkOrders/Index"
 
             ModelState.AddModelError("", "Email veya þifre hatalý");
             return Page();

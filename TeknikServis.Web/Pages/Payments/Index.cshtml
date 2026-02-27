@@ -1,0 +1,113 @@
+﻿@page
+@model TeknikServis.Web.Pages.Payments.IndexModel
+@using TeknikServis.Domain.Enums
+@{
+    ViewData["Title"] = "Kasa ve Muhasebe Raporu";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-cash-banknote me-2"></i> Kasa ve Muhasebe</h2>
+    </div>
+    <div class="col-auto ms-auto d-print-none">
+        <a asp-page="/WorkOrders/Index" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i> Yeni Tahsilat Al
+        </a>
+    </div>
+</div>
+
+<div class="row row-cards mb-4">
+    <div class="col-sm-4">
+        <div class="card card-sm shadow-sm border-success border-bottom border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-success text-white avatar"><i class="ti ti-cash"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">Toplam Nakit Kasa</div>
+                        <div class="text-muted fs-3 fw-bold text-success">@Model.TotalCash.ToString("C2")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card card-sm shadow-sm border-info border-bottom border-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-info text-white avatar"><i class="ti ti-credit-card"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">Toplam Kredi Kartı / POS</div>
+                        <div class="text-muted fs-3 fw-bold text-info">@Model.TotalCreditCard.ToString("C2")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card card-sm shadow-sm border-primary border-bottom border-3 bg-primary-lt">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-primary text-white avatar"><i class="ti ti-wallet"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">Genel Toplam Ciro</div>
+                        <div class="text-muted fs-3 fw-bold text-primary">@Model.TotalRevenue.ToString("C2")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+        <h3 class="card-title">Geçmiş Tahsilat Hareketleri</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Müşteri</th>
+                    <th>Ödeme Yöntemi</th>
+                    <th>Açıklama</th>
+                    <th class="text-end">Tutar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Payments.Any())
+                {
+                    foreach (var payment in Model.Payments)
+                    {
+                        string methodClass = payment.Method switch
+                        {
+                            PaymentMethod.Nakit => "bg-success-lt text-success",
+                            PaymentMethod.KrediKarti => "bg-info-lt text-info",
+                            _ => "bg-secondary-lt text-secondary"
+                        };
+
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@payment.CreatedAt.ToShortDateString()</div>
+                                <div class="text-muted small">@payment.CreatedAt.ToString("HH:mm")</div>
+                            </td>
+                            <td class="fw-bold">@payment.CustomerFullName</td>
+                            <td><span class="badge @methodClass fs-5">@payment.Method</span></td>
+                            <td class="text-muted">@(payment.Description ?? "-")</td>
+                            <td class="text-end fw-bold fs-3 text-success">@payment.Amount.ToString("C2")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" class="text-center py-4 text-muted">Kasada henüz bir hareket bulunmuyor.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

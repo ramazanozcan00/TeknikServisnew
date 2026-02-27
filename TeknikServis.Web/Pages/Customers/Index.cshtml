@@ -6,75 +6,72 @@
 
 <div class="row align-items-center mb-4">
     <div class="col">
-        <h2 class="page-title">
-            Müşteri Yönetimi
-        </h2>
-        <div class="text-muted mt-1">Sistemde kayıtlı tüm müşterilerinizi buradan yönetebilirsiniz.</div>
+        <h2 class="page-title"><i class="ti ti-users me-2"></i> Müşteri Yönetimi</h2>
     </div>
     <div class="col-auto ms-auto d-print-none">
-        <div class="d-flex">
-            <a asp-page="/Customers/Create" class="btn btn-primary">
-                <i class="ti ti-plus me-2"></i>
-                Yeni Müşteri Ekle
-            </a>
-        </div>
+        <a asp-page="/Customers/Create" class="btn btn-primary">
+            <i class="ti ti-plus me-1"></i> Yeni Müşteri Ekle
+        </a>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Müşteri Listesi</h3>
+        <h3 class="card-title">Kayıtlı Müşteriler</h3>
+        <div class="ms-auto text-muted">
+            <form method="get" class="d-inline-block">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="ti ti-search"></i></span>
+                    <input type="text" name="SearchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Ad, Telefon veya Cari Kod...">
+                </div>
+            </form>
+        </div>
     </div>
     <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
-                    <th>Müşteri Bilgisi</th>
+                    <th>Cari Kod</th>
+                    <th>Ad Soyad</th>
                     <th>İletişim</th>
-                    <th>Vergi / TC No</th>
-                    <th>Durum</th>
+                    <th>Kayıt Tarihi</th>
                     <th class="text-end">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
-                @if (Model.Customers.Any())
+                @if (Model.Customers != null && Model.Customers.Any())
                 {
                     foreach (var customer in Model.Customers)
                     {
                         <tr>
+                            <td><span class="badge bg-purple-lt">@customer.CustomerCode</span></td>
                             <td>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span class="avatar avatar-sm bg-blue-lt">@customer.FirstName.Substring(0, 1)@customer.LastName.Substring(0, 1)</span>
-                                    <div>
+                                <div class="d-flex py-1 align-items-center">
+                                    <span class="avatar me-2 bg-primary-lt">
+                                        @customer.FirstName.Substring(0, 1)@customer.LastName.Substring(0, 1)
+                                    </span>
+                                    <div class="flex-fill">
                                         <div class="font-weight-medium">@customer.FirstName @customer.LastName</div>
+                                        <div class="text-muted"><a href="#" class="text-reset">@customer.Email</a></div>
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <div><i class="ti ti-mail text-muted me-2"></i>@customer.Email</div>
-                                <div class="text-muted"><i class="ti ti-phone text-muted me-2"></i>@customer.PhoneNumber</div>
+                                <div><i class="ti ti-phone me-1 text-muted"></i> @customer.PhoneNumber</div>
                             </td>
-                            <td class="text-muted">
-                                @customer.TaxNumber
-                            </td>
-                            <td>
-                                <span class="badge bg-success-lt">Aktif</span>
-                            </td>
+                            <td>@customer.CreatedAt.ToShortDateString()</td>
                             <td class="text-end">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a asp-page="/Customers/Details" asp-route-id="@customer.Id" class="btn btn-sm btn-primary">
-                                        <i class="ti ti-user me-1"></i> Profil / Cihazlar
-                                    </a>
-                                    <a asp-page="/Customers/Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-primary">
-                                        <i class="ti ti-pencil me-1"></i> Düzenle
-                                    </a>
-
-                                    <form method="post" asp-page-handler="Delete" asp-route-id="@customer.Id" onsubmit="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="setDeleteId('@customer.Id')" data-bs-toggle="modal" data-bs-target="#modal-danger">
-                                            <i class="ti ti-trash me-1"></i> Sil
-                                        </button>
-                                    </form>
-                                </div>
+                                <a asp-page="/Customers/Details" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-info">
+                                    <i class="ti ti-eye"></i> Profil
+                                </a>
+                                <a asp-page="/Customers/Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-primary ms-1">
+                                    <i class="ti ti-edit"></i> Düzenle
+                                </a>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@customer.Id" class="d-inline-block ms-1" onsubmit="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="ti ti-trash"></i> Sil
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -82,67 +79,10 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <i class="ti ti-users fs-1 text-muted"></i>
-                                </div>
-                                <p class="empty-title">Kayıtlı Müşteri Yok</p>
-                                <p class="empty-subtitle text-muted">
-                                    Sistemde henüz bir müşteri bulunmuyor. Yeni bir tane ekleyerek başlayın.
-                                </p>
-                                <div class="empty-action">
-                                    <a asp-page="/Customers/Create" class="btn btn-primary">
-                                        <i class="ti ti-plus me-2"></i> Yeni Müşteri
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
+                        <td colspan="5" class="text-center py-4 text-muted">Kayıtlı müşteri bulunamadı.</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
-
-<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            <div class="modal-status bg-danger"></div>
-            <div class="modal-body text-center py-4">
-                <i class="ti ti-alert-triangle text-danger mb-2" style="font-size: 3rem;"></i>
-                <h3>Emin misiniz?</h3>
-                <div class="text-muted">Bu müşteriyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz (Sistemde arşivlenir).</div>
-            </div>
-            <div class="modal-footer">
-                <div class="w-100">
-                    <div class="row">
-                        <div class="col">
-                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
-                                Hayır, İptal Et
-                            </a>
-                        </div>
-                        <div class="col">
-                            <form method="post" asp-page-handler="Delete" id="deleteForm">
-                                <input type="hidden" name="id" id="deleteId" value="" />
-                                <button type="submit" class="btn btn-danger w-100">
-                                    Evet, Sil
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        // Hangi müşterinin silineceğini modala bildiren küçük JavaScript kodu
-        function setDeleteId(id) {
-            document.getElementById('deleteId').value = id;
-        }
-    </script>
-}

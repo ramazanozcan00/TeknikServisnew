@@ -1,14 +1,11 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using TeknikServis.Application.Features.Customers.Commands;
 using TeknikServis.Application.Features.Customers.DTOs;
 using TeknikServis.Application.Features.Customers.Queries;
 
 namespace TeknikServis.Web.Pages.Customers
 {
-    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly IMediator _mediator;
@@ -18,28 +15,22 @@ namespace TeknikServis.Web.Pages.Customers
             _mediator = mediator;
         }
 
-        // Arayüzde göstereceðimiz liste
+        // Arayüzde listelenecek müþteriler
         public List<CustomerDto> Customers { get; set; } = new();
 
-        // Sayfa her açýldýðýnda verileri çeker
+        // Arama kutusundan gelen deðeri tutacak özellik (URL'den GET ile gelebilmesi için SupportsGet = true yapýyoruz)
+        [BindProperty(SupportsGet = true)]
+        public string? SearchTerm { get; set; }
+
         public async Task OnGetAsync()
         {
-            var query = new GetCustomersQuery();
-            var result = await _mediator.Send(query);
+            // SearchTerm (Arama kelimesi) dolu da olsa boþ da olsa Query'e gönderiyoruz
+            var result = await _mediator.Send(new GetCustomersQuery(SearchTerm));
 
             if (result.IsSuccess && result.Data != null)
             {
                 Customers = result.Data;
             }
-        }
-
-        public async Task<IActionResult> OnPostDeleteAsync(Guid id)
-        {
-            var command = new DeleteCustomerCommand(id);
-            await _mediator.Send(command);
-
-            TempData["SuccessMessage"] = "Müþteri sistemden silindi."; // YENÝ EKLENEN
-            return RedirectToPage();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@page "{id:Guid}"
 @model TeknikServis.Web.Pages.Customers.DetailsModel
+@using TeknikServis.Domain.Enums
 @{
     ViewData["Title"] = "Müşteri Profili ve Cihazlar";
 }
@@ -23,6 +24,7 @@
                     @Model.Customer.FirstName.Substring(0, 1)@Model.Customer.LastName.Substring(0, 1)
                 </span>
                 <h3 class="m-0 mb-1">@Model.Customer.FirstName @Model.Customer.LastName</h3>
+                <div class="mb-2"><span class="badge bg-purple text-white">@Model.Customer.CustomerCode</span></div>
                 <div class="text-muted">@Model.Customer.Email</div>
                 <div class="mt-3">
                     <span class="badge bg-success-lt">Aktif Müşteri</span>
@@ -38,9 +40,13 @@
     </div>
 
     <div class="col-md-8">
+
         <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title"><i class="ti ti-devices me-2"></i> Kayıtlı Cihazlar</h3>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title m-0"><i class="ti ti-devices me-2"></i> Kayıtlı Cihazlar</h3>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-device">
+                    <i class="ti ti-plus me-1"></i> Yeni Cihaz Ekle
+                </button>
             </div>
             <div class="table-responsive">
                 <table class="table card-table table-vcenter">
@@ -80,12 +86,114 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header bg-primary-lt">
-                <h3 class="card-title"><i class="ti ti-plus me-2"></i> Yeni Cihaz Kaydet</h3>
+        <div class="card mt-3 border-top border-primary border-3">
+            <div class="card-header bg-dark-lt">
+                <h3 class="card-title"><i class="ti ti-history me-2"></i> İş Emirleri ve Servis Geçmişi</h3>
             </div>
-            <div class="card-body">
-                <form method="post">
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter">
+                    <thead>
+                        <tr>
+                            <th>Kayıt No / Tarih</th>
+                            <th>Cihaz</th>
+                            <th>Şikayet Özeti</th>
+                            <th>Durum</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.WorkOrders.Any())
+                        {
+                            foreach (var wo in Model.WorkOrders)
+                            {
+                                // Şık, yeni renkler ve fontlar buraya eklendi!
+                                string badgeClass = wo.Status switch
+                                {
+                                    WorkOrderStatus.Bekliyor => "bg-danger text-white",
+                                    WorkOrderStatus.Onarimda => "bg-warning text-dark",
+                                    WorkOrderStatus.Tamamlandi => "bg-success text-white",
+                                    WorkOrderStatus.TeslimEdildi => "bg-info text-white",
+                                    WorkOrderStatus.IptalEdildi => "bg-light text-dark border",
+                                    _ => "bg-primary text-white"
+                                };
+
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">@wo.WorkOrderNo</div>
+                                        <div class="text-muted small">@wo.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                    </td>
+                                    <td><span class="badge bg-secondary-lt">@wo.DeviceInfo</span></td>
+                                    <td>
+                                        <span class="text-muted" title="@wo.Description">
+                                            @(wo.Description.Length > 30 ? wo.Description.Substring(0, 30) + "..." : wo.Description)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @badgeClass text-uppercase py-1 px-2" style="letter-spacing: 0.5px; border-radius: 4px;">
+                                            @wo.Status
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a asp-page="/WorkOrders/Summary" asp-route-id="@wo.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="ti ti-eye me-1"></i> İncele
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="ti ti-info-circle mb-2" style="font-size:2rem;"></i><br />
+                                    Bu müşteriye ait henüz bir iş emri açılmamış.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="modal-workorder" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-lt">
+                <h5 class="modal-title"><i class="ti ti-tool me-2"></i> Yeni Arıza Kaydı (İş Emri) Başlat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="CreateWorkOrder">
+                <div class="modal-body">
+                    <input type="hidden" asp-for="WorkOrderInput.DeviceId" id="hiddenDeviceId" />
+
+                    <div class="mb-3">
+                        <label class="form-label required">Müşterinin Şikayeti / Arıza Açıklaması</label>
+                        <textarea asp-for="WorkOrderInput.Description" class="form-control" rows="4" placeholder="Örn: Cihaz şarj almıyor, ekranın sağ üst köşesinde kararma var..." required></textarea>
+                        <small class="form-hint">Lütfen arızayı olabildiğince detaylı yazın. Teknisyen bu nota göre işlem yapacaktır.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-warning ms-auto">
+                        <i class="ti ti-device-floppy me-2"></i> İş Emrini Başlat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="modal-device" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary-lt">
+                <h5 class="modal-title"><i class="ti ti-device-mobile me-2"></i> Yeni Cihaz Kaydet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -114,50 +222,23 @@
                             <input asp-for="Input.Model" class="form-control" placeholder="Örn: iPhone 13" />
                             <span asp-validation-for="Input.Model" class="text-danger"></span>
                         </div>
-                        <div class="col-md-12 mb-3">
+                        <div class="col-md-12">
                             <label asp-for="Input.Note" class="form-label">Genel Notlar / Hasar Durumu (Opsiyonel)</label>
                             <textarea asp-for="Input.Note" class="form-control" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-device-floppy me-2"></i> Cihazı Kaydet
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal modal-blur fade" id="modal-workorder" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning-lt">
-                <h5 class="modal-title"><i class="ti ti-tool me-2"></i> Yeni Arıza Kaydı (İş Emri) Başlat</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" asp-page-handler="CreateWorkOrder">
-                <div class="modal-body">
-                    <input type="hidden" asp-for="WorkOrderInput.DeviceId" id="hiddenDeviceId" />
-
-                    <div class="mb-3">
-                        <label class="form-label required">Müşterinin Şikayeti / Arıza Açıklaması</label>
-                        <textarea asp-for="WorkOrderInput.Description" class="form-control" rows="4" placeholder="Örn: Cihaz şarj almıyor, ekranın sağ üst köşesinde kararma var..." required></textarea>
-                        <small class="form-hint">Lütfen arızayı olabildiğince detaylı yazın. Teknisyen bu nota göre işlem yapacaktır.</small>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                        İptal
-                    </button>
-                    <button type="submit" class="btn btn-warning ms-auto">
-                        <i class="ti ti-device-floppy me-2"></i> İş Emrini Başlat
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy me-2"></i> Cihazı Kaydet
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
