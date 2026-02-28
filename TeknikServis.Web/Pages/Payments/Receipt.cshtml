@@ -1,0 +1,88 @@
+﻿@page "{id:Guid}"
+@model TeknikServis.Web.Pages.Payments.ReceiptModel
+@{
+    ViewData["Title"] = "Tahsilat Makbuzu";
+}
+
+<div class="row d-print-none mb-4 align-items-center">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-receipt me-2"></i> Tahsilat Makbuzu</h2>
+    </div>
+    <div class="col-auto ms-auto d-flex gap-2">
+        <button type="button" onclick="window.print();" class="btn btn-primary">
+            <i class="ti ti-printer me-2"></i> Makbuzu Yazdır
+        </button>
+        <a asp-page="/Payments/Index" class="btn btn-ghost-secondary">
+            <i class="ti ti-arrow-left me-2"></i> Kasaya Dön
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm" style="max-width: 800px; margin: auto;">
+    <div class="card-body p-5">
+        <div class="row align-items-center mb-5 border-bottom pb-4">
+            <div class="col-sm-6 text-center text-sm-start">
+                <h1 class="display-6 fw-bold text-success mb-1">
+                    <i class="ti ti-building-store me-2"></i>TeknikServis
+                </h1>
+                <div class="text-muted fs-4">Resmi Tahsilat Makbuzu</div>
+            </div>
+            <div class="col-sm-6 text-center text-sm-end mt-3 mt-sm-0">
+                <div class="text-muted mb-1">Makbuz Numarası</div>
+                <h2 class="fw-bold m-0">@Model.Payment.ReceiptNo</h2>
+                <div class="text-muted mt-1">Tarih: @Model.Payment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12 bg-light p-4 rounded border">
+                <div class="row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                        <h4 class="text-muted text-uppercase mb-2">Sayın Müşterimiz</h4>
+                        <div class="fs-2 fw-bold text-primary">@Model.Payment.CustomerFullName</div>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h4 class="text-muted text-uppercase mb-2">Ödeme Yöntemi</h4>
+                        <div class="fs-2 fw-bold">
+                            @if (Model.Payment.Method == Domain.Enums.PaymentMethod.Nakit)
+                            {
+                                <span class="text-success"><i class="ti ti-cash me-1"></i> Nakit</span>
+                            }
+                            else if (Model.Payment.Method == Domain.Enums.PaymentMethod.KrediKarti)
+                            {
+
+                                <span class="text-info"><i class="ti ti-credit-card me-1"></i> Kredi Kartı</span>
+                            }
+                            else
+                            {
+
+                                <span><i class="ti ti-building-bank me-1"></i> Havale / EFT</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <h4 class="text-muted border-bottom pb-2 mb-3">AÇIKLAMA / HİZMET DETAYI</h4>
+            <div class="fs-3">@(string.IsNullOrWhiteSpace(Model.Payment.Description) ? "Teknik Servis Hizmet Bedeli" : Model.Payment.Description)</div>
+        </div>
+
+        <div class="row align-items-center bg-success-lt p-4 rounded border border-success border-2">
+            <div class="col">
+                <div class="text-uppercase text-muted fw-bold fs-3">TAHSİL EDİLEN TUTAR</div>
+            </div>
+            <div class="col-auto">
+                <div class="display-5 fw-bold text-success">
+                    @Model.Payment.Amount.ToString("C2")
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-muted mt-5 fs-4">
+            <p>Bizi tercih ettiğiniz için teşekkür ederiz.</p>
+            <p class="small">Bu makbuz bilgi amaçlıdır, resmi fatura yerine geçmez.</p>
+        </div>
+    </div>
+</div>

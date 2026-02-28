@@ -9,9 +9,10 @@
         <h2 class="page-title"><i class="ti ti-users me-2"></i> Müşteri Yönetimi</h2>
     </div>
     <div class="col-auto ms-auto d-print-none">
-        <a asp-page="/Customers/Create" class="btn btn-primary">
-            <i class="ti ti-plus me-1"></i> Yeni Müşteri Ekle
-        </a>
+        @if (User.IsInRole("Admin") || User.HasClaim("Permission", "Musteri.Ekle"))
+        {
+            <a asp-page="/Customers/Create" class="btn btn-primary">Yeni Müşteri Ekle</a>
+        }
     </div>
 </div>
 
@@ -68,9 +69,13 @@
                                     <i class="ti ti-edit"></i> Düzenle
                                 </a>
                                 <form method="post" asp-page-handler="Delete" asp-route-id="@customer.Id" class="d-inline-block ms-1" onsubmit="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="ti ti-trash"></i> Sil
-                                    </button>
+                                    
+                                    @if (User.IsInRole("Admin") || User.HasClaim("Permission", "Musteri.Sil"))
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="ti ti-trash"></i> Sil
+                                        </button>
+                                    }
                                 </form>
                             </td>
                         </tr>

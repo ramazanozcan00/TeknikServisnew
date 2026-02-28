@@ -33,9 +33,11 @@ namespace TeknikServis.Application.Features.Payments.Queries
                 var customer = customers.FirstOrDefault(c => c.Id == p.CustomerId);
 
                 return new PaymentDto(
-                    p.Id, p.CustomerId, p.WorkOrderId, p.Amount, p.Method, p.Description, p.CreatedAt,
-                    customer != null ? $"{customer.FirstName} {customer.LastName}" : "Bilinmeyen Müşteri"
-                );
+                      p.Id, p.CustomerId, p.WorkOrderId,
+                      p.ReceiptNo ?? "ESKİ-KAYIT", // Yeni eklenen kısım burası
+                      p.Amount, p.Method, p.Description, p.CreatedAt,
+                      customer != null ? $"{customer.FirstName} {customer.LastName}" : "Bilinmeyen Müşteri"
+                  );
             }).ToList();
 
             return Result<List<PaymentDto>>.Success(dtoList);

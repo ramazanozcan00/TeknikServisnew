@@ -3,6 +3,10 @@ using TeknikServis.Application.Features.Dashboard.DTOs;
 using TeknikServis.Application.Features.WorkOrders.DTOs;
 using TeknikServis.Application.Interfaces;
 using TeknikServis.Domain.Enums;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TeknikServis.Infrastructure.Persistence.Repositories
 {
@@ -26,18 +30,30 @@ namespace TeknikServis.Infrastructure.Persistence.Repositories
 
             return new DashboardStatsDto(totalCustomers, totalDevices, activeWorkOrders, completedWorkOrders);
         }
-        // YENİ EKLENEN METOT
+
+        // GÜNCELLENEN METOT: Yeni 15 parametreli DTO yapısına %100 uyumlu hale getirildi
         public async Task<WorkOrderDetailDto?> GetWorkOrderDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            // Veritabanı işlemleri (EntityFramework) sadece Infrastructure'da yapılır!
             return await (from wo in _context.WorkOrders
                           join d in _context.Devices on wo.DeviceId equals d.Id
                           join c in _context.Customers on d.CustomerId equals c.Id
                           where wo.Id == id
                           select new WorkOrderDetailDto(
-                              wo.Id, wo.WorkOrderNo, wo.Description, wo.TechnicianNotes, wo.TotalPrice, wo.Status, wo.CreatedAt,
-                              c.FirstName + " " + c.LastName, c.PhoneNumber,
-                              d.Brand, d.Model, d.SerialNumber
+                              wo.Id,
+                              wo.WorkOrderNo,
+                              c.Id, // 3. Parametre: CustomerId (YENİ EKLENDİ)
+                              c.FirstName + " " + c.LastName,
+                              c.PhoneNumber,
+                              d.Id, // 6. Parametre: DeviceId
+                              d.Brand,
+                              d.Model,
+                              d.SerialNumber,
+                              d.DeviceType + " - " + d.Brand + " " + d.Model, // 10. Parametre: DeviceInfo
+                              wo.Description,
+                              wo.TechnicianNotes,
+                              wo.TotalPrice,
+                              wo.Status,
+                              wo.CreatedAt
                           )).FirstOrDefaultAsync(cancellationToken);
         }
     }

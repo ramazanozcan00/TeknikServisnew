@@ -11,10 +11,19 @@
         <div class="text-muted mt-1">Kayıt No: <span class="fw-bold">@Model.Detail.WorkOrderNo</span></div>
     </div>
     <div class="col-auto ms-auto d-flex gap-2">
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-payment">
-            <i class="ti ti-cash me-2"></i> Tahsilat Al
-        </button>
 
+        @if (Model.IsPaid)
+        {
+            <button type="button" class="btn btn-success disabled" style="cursor: not-allowed; opacity: 0.8;" disabled title="Bu işlemin tahsilatı yapılmıştır.">
+                <i class="ti ti-check me-2"></i> Tahsilat Yapıldı
+            </button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modal-payment">
+                <i class="ti ti-cash me-2"></i> Tahsilat Al
+            </button>
+        }
         <button type="button" onclick="window.print();" class="btn btn-outline-primary">
             <i class="ti ti-printer me-2"></i> Raporu Yazdır
         </button>

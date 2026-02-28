@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using TeknikServis.Application.Features.Customers.DTOs;
 using TeknikServis.Application.Features.Customers.Queries;
 using TeknikServis.Application.Features.Devices.Commands;
@@ -19,11 +22,16 @@ namespace TeknikServis.Web.Pages.Customers
 
         public CustomerDto Customer { get; set; } = null!;
         public List<DeviceDto> Devices { get; set; } = new();
-        public List<WorkOrderBoardDto> WorkOrders { get; set; } = new();
+
+        // HATA BURADAYDI: WorkOrderBoardDto yerine WorkOrderDetailDto yapýldý
+        public List<WorkOrderDetailDto> WorkOrders { get; set; } = new();
+
         [BindProperty]
         public DeviceInputModel Input { get; set; } = new();
 
-        // Sayfa açýldýðýnda Müþteriyi ve Cihazlarýný getirir
+        [BindProperty]
+        public WorkOrderInputModel WorkOrderInput { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
             var customerResult = await _mediator.Send(new GetCustomerByIdQuery(id));
@@ -35,16 +43,16 @@ namespace TeknikServis.Web.Pages.Customers
             {
                 Devices = devicesResult.Data;
             }
-            // Müþterinin Ýþ Emirlerini (Geçmiþ ve Aktif) Getir
+
             var workOrdersResult = await _mediator.Send(new GetWorkOrdersByCustomerIdQuery(id));
             if (workOrdersResult.IsSuccess && workOrdersResult.Data != null)
             {
                 WorkOrders = workOrdersResult.Data;
             }
+
             return Page();
         }
 
-        // Yeni cihaz formundan veri geldiðinde çalýþýr
         public async Task<IActionResult> OnPostAsync(Guid id)
         {
             if (!ModelState.IsValid) return await OnGetAsync(id);
@@ -56,17 +64,16 @@ namespace TeknikServis.Web.Pages.Customers
 
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Yeni cihaz baþarýyla müþteriye eklendi."; // Toast mesajýmýz!
-                return RedirectToPage(new { id = id }); // Sayfayý yenile
+                TempData["SuccessMessage"] = "Yeni cihaz baþarýyla müþteriye eklendi.";
+                return RedirectToPage(new { id = id });
             }
 
             ModelState.AddModelError(string.Empty, result.ErrorMessage!);
             return await OnGetAsync(id);
         }
-        // Modal üzerinden gelen Ýþ Emri kayýt isteðini yakalar
-        public async Task<IActionResult> OnPostCreateWorkOrderAsync(Guid id) // id = CustomerId (URL'den gelir)
+
+        public async Task<IActionResult> OnPostCreateWorkOrderAsync(Guid id)
         {
-            // Arýza açýklamasý boþsa kaydetme
             if (string.IsNullOrWhiteSpace(WorkOrderInput.Description))
             {
                 TempData["ErrorMessage"] = "Arýza açýklamasý boþ býrakýlamaz.";
@@ -79,15 +86,14 @@ namespace TeknikServis.Web.Pages.Customers
             if (result.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Ýþ emri açýldý. Lütfen fiþi yazdýrýn.";
-                // Müþteri sayfasýna dönmek yerine, fiþ yazdýrma sayfasýna yönlendir!
                 return RedirectToPage("/WorkOrders/Receipt", new { id = result.Data });
             }
             else
             {
-                TempData["ErrorMessage"] = result.ErrorMessage; // Eðer özel bir hata Toast'ý yapmak istersen
+                TempData["ErrorMessage"] = result.ErrorMessage;
             }
 
-            return RedirectToPage(new { id = id }); // Sayfayý yenile
+            return RedirectToPage(new { id = id });
         }
 
         public class DeviceInputModel
@@ -98,10 +104,6 @@ namespace TeknikServis.Web.Pages.Customers
             public string DeviceType { get; set; } = string.Empty;
             public string? Note { get; set; }
         }
-
-        // Ýþ Emri formu için verileri taþýyacak model
-        [BindProperty]
-        public WorkOrderInputModel WorkOrderInput { get; set; } = new();
 
         public class WorkOrderInputModel
         {

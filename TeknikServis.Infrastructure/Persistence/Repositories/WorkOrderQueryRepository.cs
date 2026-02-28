@@ -1,4 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TeknikServis.Application.Features.WorkOrders.DTOs;
 using TeknikServis.Application.Interfaces;
 
@@ -32,33 +37,35 @@ namespace TeknikServis.Infrastructure.Persistence.Repositories
             return await query.ToListAsync(cancellationToken);
         }
 
-        // 2. Tek bir iş emrinin operasyon detaylarını getiren metot
+        // 2. Tek bir iş emrinin operasyon detaylarını getiren metot (HATANIN ÇÖZÜLDÜĞÜ YER)
         public async Task<WorkOrderDetailDto?> GetWorkOrderDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await (from wo in _context.WorkOrders
                           join d in _context.Devices on wo.DeviceId equals d.Id
                           join c in _context.Customers on d.CustomerId equals c.Id
                           where wo.Id == id
-                          select new WorkOrderDetailDto (
+                          select new WorkOrderDetailDto(
                               wo.Id,
                               wo.WorkOrderNo,
+                              c.Id, // 3. Parametre: CustomerId (YENİ EKLENDİ)
+                              c.FirstName + " " + c.LastName,
+                              c.PhoneNumber,
+                              d.Id, // 6. Parametre: DeviceId
+                              d.Brand,
+                              d.Model,
+                              d.SerialNumber,
+                              d.DeviceType + " - " + d.Brand + " " + d.Model, // 10. Parametre: DeviceInfo
                               wo.Description,
                               wo.TechnicianNotes,
                               wo.TotalPrice,
                               wo.Status,
-                              wo.CreatedAt,
-                              c.FirstName + " " + c.LastName,
-                              c.PhoneNumber,
-                              d.Brand,
-                              d.Model,
-                              d.SerialNumber
+                              wo.CreatedAt
                           )).FirstOrDefaultAsync(cancellationToken);
         }
 
-        // 3. YENİ EKLENEN METOT: Belirli bir müşterinin tüm iş emirlerini getiren metot
+        // 3. Belirli bir müşterinin tüm iş emirlerini getiren metot
         public async Task<List<WorkOrderBoardDto>> GetWorkOrdersByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
         {
-            // Belirli bir müşterinin tüm iş emirlerini tarihe göre yeninden eskiye sıralayarak getiriyoruz
             return await (from wo in _context.WorkOrders
                           join d in _context.Devices on wo.DeviceId equals d.Id
                           join c in _context.Customers on d.CustomerId equals c.Id

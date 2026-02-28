@@ -1,0 +1,48 @@
+﻿@page
+@model TeknikServis.Web.Pages.Employees.IndexModel
+@{
+    ViewData["Title"] = "Çalışan Yönetimi";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-user-shield me-2"></i> Çalışan / Personel Yönetimi</h2>
+    </div>
+    <div class="col-auto ms-auto">
+        <a asp-page="/Employees/Create" class="btn btn-primary">
+            <i class="ti ti-user-plus me-1"></i> Yeni Çalışan Ekle
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>E-Posta Adresi (Giriş Adı)</th>
+                    <th>Sistem Yetkisi / Rolü</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in Model.Employees)
+                {
+                    string badgeClass = emp.Role switch
+                    {
+                        "Admin" => "bg-danger",
+                        "Sekreter" => "bg-success",
+                        "Teknisyen" => "bg-info",
+                        _ => "bg-secondary"
+                    };
+
+                    <tr>
+                        <td class="fw-bold fs-3">@emp.FullName</td>
+                        <td class="text-muted">@emp.Email</td>
+                        <td><span class="badge @badgeClass fs-5">@emp.Role</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

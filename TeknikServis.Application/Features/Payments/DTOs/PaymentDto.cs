@@ -7,11 +7,11 @@ namespace TeknikServis.Application.Features.Payments.DTOs
         Guid Id,
         Guid CustomerId,
         Guid? WorkOrderId,
+        string ReceiptNo, // YENİ EKLENDİ
         decimal Amount,
         PaymentMethod Method,
         string Description,
         DateTime CreatedAt,
-        // Ekranda id yerine isimleri göstermek için eklediğimiz alanlar
         string CustomerFullName = "",
         string WorkOrderNo = "");
 }

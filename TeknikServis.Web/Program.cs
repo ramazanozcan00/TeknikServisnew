@@ -66,21 +66,43 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-// --- ÝLK ADMIN KULLANICISINI OLUÞTURMA (SEED) ---
+// --- ÝLK ADMIN KULLANICISINI VE ROLLERÝ OLUÞTURMA (SEED) ---
+
+// --- ÝLK ADMIN KULLANICISINI VE ROLLERÝ OLUÞTURMA (SEED) ---
 
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    if (!userManager.Users.Any())
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+    // 1. Sistemdeki Temel Rolleri Oluþtur
+    string[] roller = { "Admin", "Teknisyen", "Sekreter" };
+    foreach (var rolAdi in roller)
     {
-        var adminUser = new ApplicationUser
+        if (!await roleManager.RoleExistsAsync(rolAdi))
+        {
+            await roleManager.CreateAsync(new ApplicationRole { Name = rolAdi });
+        }
+    }
+
+    // 2. Admin kullanýcýsýný bul, yoksa oluþtur
+    var adminUser = await userManager.FindByEmailAsync("admin@teknikservis.com");
+    if (adminUser == null)
+    {
+        adminUser = new ApplicationUser
         {
             UserName = "admin@teknikservis.com",
             Email = "admin@teknikservis.com",
             FirstName = "Sistem",
             LastName = "Yöneticisi"
         };
-        await userManager.CreateAsync(adminUser, "Admin123!"); // Þifremiz: Admin123!
+        await userManager.CreateAsync(adminUser, "Admin123!");
+    }
+
+    // 3. Kullanýcýya "Admin" rolü atanmamýþsa KESÝNLÝKLE ata
+    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    {
+        await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }
 

@@ -49,6 +49,7 @@
                 <div class="collapse navbar-collapse" id="navbar-menu">
                     <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                         <ul class="navbar-nav">
+
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/WorkOrders/Index">
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -57,6 +58,29 @@
                                     <span class="nav-link-title">Atölye (İş Emirleri)</span>
                                 </a>
                             </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/Employees/Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-user-shield text-danger"></i>
+                                        </span>
+                                        <span class="nav-link-title">Çalışan Yönetimi</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/Roles/Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-shield-lock text-danger"></i>
+                                        </span>
+                                        <span class="nav-link-title">Rol & Yetki Yönetimi</span>
+                                    </a>
+                                </li>
+                            }
+
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/Customers/Index">
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -65,6 +89,19 @@
                                     <span class="nav-link-title">Müşteriler</span>
                                 </a>
                             </li>
+
+                            @if (User.IsInRole("Admin") || User.IsInRole("Sekreter"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/Payments/Index">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <i class="ti ti-cash-banknote text-success"></i>
+                                        </span>
+                                        <span class="nav-link-title">Kasa ve Finans</span>
+                                    </a>
+                                </li>
+                            }
+
                         </ul>
                     </div>
                 </div>

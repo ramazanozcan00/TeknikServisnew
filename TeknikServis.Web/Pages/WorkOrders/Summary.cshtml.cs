@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using TeknikServis.Application.Features.Payments.Commands;
+using TeknikServis.Application.Features.Payments.Queries;
 using TeknikServis.Application.Features.WorkOrders.DTOs;
 using TeknikServis.Application.Features.WorkOrders.Queries;
 using TeknikServis.Domain.Enums;
@@ -16,7 +17,9 @@ namespace TeknikServis.Web.Pages.WorkOrders
 
         public WorkOrderDetailDto Detail { get; set; } = null!;
 
-        // Tahsilat Formu Ýçin Model
+        // YENÝ EKLENEN: Ödeme yapýldý mý bilgisini tutan deðiþken
+        public bool IsPaid { get; set; } = false;
+
         [BindProperty]
         public PaymentInputModel PaymentInput { get; set; } = new();
 
@@ -24,10 +27,8 @@ namespace TeknikServis.Web.Pages.WorkOrders
         {
             public Guid WorkOrderId { get; set; }
             public Guid CustomerId { get; set; }
-
             [Required(ErrorMessage = "Tutar girilmesi zorunludur.")]
             public decimal Amount { get; set; }
-
             public PaymentMethod Method { get; set; } = PaymentMethod.Nakit;
             public string Description { get; set; } = string.Empty;
         }
@@ -40,41 +41,37 @@ namespace TeknikServis.Web.Pages.WorkOrders
 
             Detail = result.Data;
 
-            // Form açýldýðýnda Tutar ve Açýklama kýsýmlarýný otomatik dolduruyoruz
+            // YENÝ EKLENEN: Kasada bu iþ emrinin ödemesi var mý diye kontrol et
+            var paymentCheckResult = await _mediator.Send(new CheckWorkOrderPaymentQuery(Detail.Id));
+            if (paymentCheckResult.IsSuccess)
+            {
+                IsPaid = paymentCheckResult.Data;
+            }
+
             PaymentInput = new PaymentInputModel
             {
                 WorkOrderId = Detail.Id,
                 CustomerId = Detail.CustomerId,
-                Amount = Detail.TotalPrice ?? 0, // Eðer fiyat girilmemiþse 0 gelir
+                Amount = Detail.TotalPrice ?? 0,
                 Description = $"{Detail.WorkOrderNo} numaralý servis hizmeti tahsilatý."
             };
 
             return Page();
         }
 
-        // Tahsilat Al Butonuna Basýldýðýnda Çalýþacak Metot
         public async Task<IActionResult> OnPostReceivePaymentAsync()
         {
-            var command = new ReceivePaymentCommand(
-                PaymentInput.CustomerId,
-                PaymentInput.WorkOrderId,
-                PaymentInput.Amount,
-                PaymentInput.Method,
-                PaymentInput.Description
-            );
-
+            var command = new ReceivePaymentCommand(PaymentInput.CustomerId, PaymentInput.WorkOrderId, PaymentInput.Amount, PaymentInput.Method, PaymentInput.Description);
             var result = await _mediator.Send(command);
 
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Tahsilat baþarýyla alýndý ve kasaya iþlendi!";
+                TempData["SuccessMessage"] = "Tahsilat baþarýyla alýndý!";
+                // Özet sayfasýna dönmek yerine direkt FÝÞ YAZDIRMA SAYFASINA yönlendir!
+                return RedirectToPage("/Payments/Receipt", new { id = result.Data });
             }
-            else
-            {
-                TempData["ErrorMessage"] = result.ErrorMessage ?? "Tahsilat alýnýrken bir hata oluþtu.";
-            }
+            else TempData["ErrorMessage"] = result.ErrorMessage ?? "Tahsilat alýnýrken bir hata oluþtu.";
 
-            // Sayfayý mesajla birlikte yenile
             return RedirectToPage(new { id = PaymentInput.WorkOrderId });
         }
     }
