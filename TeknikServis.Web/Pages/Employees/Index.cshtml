@@ -21,25 +21,38 @@
             <thead>
                 <tr>
                     <th>Ad Soyad</th>
-                    <th>E-Posta Adresi (Giriş Adı)</th>
-                    <th>Sistem Yetkisi / Rolü</th>
+                    <th>E-Posta Adresi</th>
+                    <th>Yetkisi</th>
+                    <th>Durum</th>
+                    <th class="text-end">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var emp in Model.Employees)
                 {
-                    string badgeClass = emp.Role switch
-                    {
-                        "Admin" => "bg-danger",
-                        "Sekreter" => "bg-success",
-                        "Teknisyen" => "bg-info",
-                        _ => "bg-secondary"
-                    };
-
+                    // (badgeClass vs aynı kalıyor)
                     <tr>
                         <td class="fw-bold fs-3">@emp.FullName</td>
                         <td class="text-muted">@emp.Email</td>
-                        <td><span class="badge @badgeClass fs-5">@emp.Role</span></td>
+                        <td><span class="badge @@badgeClass fs-5">@emp.Role</span></td>
+
+                        <td>
+                            @if (emp.IsActive)
+                            {
+                                <span class="badge bg-success-lt text-success border-success">Aktif</span>
+                            }
+                            else
+                            {
+
+                                <span class="badge bg-danger-lt text-danger border-danger">Pasif</span>
+                            }
+                        </td>
+
+                        <td class="text-end">
+                            <a asp-page="./Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="ti ti-edit me-1"></i> Düzenle
+                            </a>
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -1,4 +1,7 @@
 ﻿<!DOCTYPE html>
+@using MediatR
+@using TeknikServis.Application.Features.Notifications.Queries
+@inject IMediator Mediator
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -8,12 +11,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
 
-
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f4f6fa; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6fa;
+        }
     </style>
 </head>
 <body class="layout-fluid">
+
+    @{
+        var notificationsResult = await Mediator.Send(new GetLatestNotificationsQuery(5));
+        var notifications = notificationsResult.IsSuccess && notificationsResult.Data != null
+        ? notificationsResult.Data
+        : new List<TeknikServis.Application.Features.Notifications.DTOs.NotificationDto>();
+    }
+
     <div class="page">
         <header class="navbar navbar-expand-md navbar-light d-print-none">
             <div class="container-fluid">
@@ -26,6 +39,51 @@
                 </h1>
 
                 <div class="navbar-nav flex-row order-md-last">
+
+                    <!-- BİLDİRİMLER (EKLENDİ) -->
+                    <div class="nav-item dropdown d-none d-md-flex me-3">
+                        <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Bildirimleri Göster">
+                            <i class="ti ti-bell fs-2"></i>
+                            @if (notifications.Any())
+                            {
+                                <span class="badge bg-red badge-blink"></span>
+                            }
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card" style="width: 350px;">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between">
+                                    <h3 class="card-title m-0">Sistem Bildirimleri</h3>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-page="/Notifications/Create" class="text-primary small"><i class="ti ti-plus"></i> Yayınla</a>
+                                    }
+                                </div>
+                                <div class="list-group list-group-flush list-group-hoverable">
+                                    @foreach (var n in notifications)
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    <span class="status-dot status-dot-animated @n.Color d-block"></span>
+                                                </div>
+                                                <div class="col text-truncate">
+                                                    <a href="#" class="text-body d-block fw-bold fs-4">@n.Title</a>
+                                                    <div class="d-block text-muted text-truncate mt-n1" title="@n.Message">@n.Message</div>
+                                                </div>
+                                                <div class="col-auto text-muted text-nowrap small mt-2">@n.CreatedAt.ToString("dd MMM HH:mm")</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!notifications.Any())
+                                    {
+                                        <div class="list-group-item text-center text-muted py-4">Yeni bildirim yok.</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /BİLDİRİMLER -->
+
                     <div class="nav-item dropdown">
                         <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Kullanıcı Menüsü">
                             <span class="avatar avatar-sm bg-primary-lt">
@@ -58,6 +116,7 @@
                                     <span class="nav-link-title">Atölye (İş Emirleri)</span>
                                 </a>
                             </li>
+
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
@@ -69,6 +128,7 @@
                                     </a>
                                 </li>
                             }
+
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
@@ -117,6 +177,7 @@
             </div>
         </div>
     </div>
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
@@ -130,15 +191,14 @@
             </div>
         </div>
         <script>
-            // Sayfa yüklendiğinde Toast'ı otomatik göster
             document.addEventListener("DOMContentLoaded", function () {
                 var toastEl = document.getElementById('successToast');
-                // Bootstrap nesnesi Tabler içinde dahili gelir
                 var toast = new bootstrap.Toast(toastEl, { delay: 3000 });
                 toast.show();
             });
         </script>
     }
+
     <script src="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 

@@ -21,6 +21,8 @@ namespace TeknikServis.Web.Pages.Employees
 
         public List<EmployeeViewModel> Employees { get; set; } = new();
 
+        // Index.cshtml.cs içindeki döngü ve ViewModel kýsmýný þu þekilde güncelle:
+
         public async Task OnGetAsync()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -29,20 +31,22 @@ namespace TeknikServis.Web.Pages.Employees
                 var roles = await _userManager.GetRolesAsync(user);
                 Employees.Add(new EmployeeViewModel
                 {
-                    Id = user.Id.ToString(), // <--- ÝÞTE HATAYI ÇÖZEN KISIM (.ToString() eklendi)
+                    Id = user.Id.ToString(),
                     FullName = $"{user.FirstName} {user.LastName}",
                     Email = user.Email,
-                    Role = roles.Count > 0 ? roles[0] : "Rol Yok"
+                    Role = roles.Count > 0 ? roles[0] : "Rol Yok",
+                    IsActive = user.IsActive // YENÝ EKLENDÝ
                 });
             }
         }
 
         public class EmployeeViewModel
         {
-            public string Id { get; set; } // Ekranda göstermek için string olarak tutuyoruz
+            public string Id { get; set; }
             public string FullName { get; set; }
             public string Email { get; set; }
             public string Role { get; set; }
+            public bool IsActive { get; set; } // YENÝ EKLENDÝ
         }
     }
 }

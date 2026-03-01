@@ -1,35 +1,39 @@
-using Microsoft.AspNetCore.Authorization; // 1. BU SATIRI EKLE
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using TeknikServis.Infrastructure.Persistence.Identity;
 
 namespace TeknikServis.Web.Pages.Auth
 {
-    [AllowAnonymous] // 2. BU ETÝKETÝ EKLE (Sonsuz döngüyü çözen anahtar budur)
+    [AllowAnonymous]
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager)
+        // RoleManager'ý kaldýrdýk çünkü artýk giriþ ekranýnda zorla rol atamýyoruz
+        public LoginModel(SignInManager<ApplicationUser> signInManager,
+                          UserManager<ApplicationUser> userManager)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
         [BindProperty]
-        public LoginInputModel Input { get; set; }
+        public LoginInputModel Input { get; set; } = new();
 
         public class LoginInputModel
         {
-            [Required]
+            [Required(ErrorMessage = "Email zorunludur.")]
             [EmailAddress]
-            public string Email { get; set; }
+            public string Email { get; set; } = string.Empty;
 
-            [Required]
-            public string Password { get; set; }
+            [Required(ErrorMessage = "Þifre zorunludur.")]
+            public string Password { get; set; } = string.Empty;
 
-            // YENÝ EKLENEN SATIR: Tasarýmdaki onay kutusunu burasý yakalayacak
             public bool RememberMe { get; set; }
         }
 
@@ -38,7 +42,22 @@ namespace TeknikServis.Web.Pages.Auth
             if (!ModelState.IsValid)
                 return Page();
 
-            // true yerine Input.RememberMe yazdýk
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+
+            // GÝRÝÞ YAPAN PERSONEL AKTÝF MÝ KONTROLÜ
+            if (user != null && !user.IsActive)
+            {
+                // E-posta yerine direkt "Admin" yetkisine sahip mi diye bakýyoruz.
+                // Bu sayede e-postasý ne olursa olsun, Adminler kendini kilitlese bile girebilecek.
+                var isUserAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+                if (!isUserAdmin)
+                {
+                    ModelState.AddModelError("", "Hesabýnýz pasife alýnmýþtýr. Sisteme giriþ yapamazsýnýz.");
+                    return Page();
+                }
+            }
+
             var result = await _signInManager.PasswordSignInAsync(
                 Input.Email,
                 Input.Password,
@@ -46,7 +65,7 @@ namespace TeknikServis.Web.Pages.Auth
                 false);
 
             if (result.Succeeded)
-                return RedirectToPage("/Index"); // Veya "/WorkOrders/Index"
+                return RedirectToPage("/Index");
 
             ModelState.AddModelError("", "Email veya þifre hatalý");
             return Page();

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using TeknikServis.Application.Interfaces;
 using TeknikServis.Infrastructure.Persistence;
 using TeknikServis.Infrastructure.Persistence.Repositories;
-using TeknikServis.Application.Features.Customers.Commands; // MediatR'ýn katmaný bulmasý için
+using TeknikServis.Application.Features.Customers.Commands;
 using TeknikServis.Infrastructure.Persistence.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,10 +28,10 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 // --- 3. COOKIE (GÝRÝÞ) AYARLARI ---
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Auth/Login"; // Giriþ yapýlmamýþsa buraya at
+    options.LoginPath = "/Auth/Login";
     options.LogoutPath = "/Auth/Logout";
     options.AccessDeniedPath = "/Auth/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromHours(8); // 8 saat baðlý kal
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
 
@@ -39,7 +39,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IWorkOrderQueryRepository, WorkOrderQueryRepository>();
-builder.Services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>(); // YENÝ EKLENDÝ
+builder.Services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>();
+
 // --- 5. MEDIATR TANITMA ---
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateCustomerCommand).Assembly));
 
@@ -57,25 +58,19 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-// Identity için ÞART: önce Authentication, sonra Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapRazorPages();
 
 // --- ÝLK ADMIN KULLANICISINI VE ROLLERÝ OLUÞTURMA (SEED) ---
-
-// --- ÝLK ADMIN KULLANICISINI VE ROLLERÝ OLUÞTURMA (SEED) ---
-
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-    // 1. Sistemdeki Temel Rolleri Oluþtur
+    // 1. Temel Rolleri Oluþtur
     string[] roller = { "Admin", "Teknisyen", "Sekreter" };
     foreach (var rolAdi in roller)
     {
@@ -85,26 +80,29 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // 2. Admin kullanýcýsýný bul, yoksa oluþtur
-    var adminUser = await userManager.FindByEmailAsync("admin@teknikservis.com");
-    if (adminUser == null)
+    // 2. DÜÐÜMÜ ÇÖZEN KISIM: Eski yetkisiz admin hesabýný tamamen siliyoruz!
+    var oldAdmin = await userManager.FindByEmailAsync("admin@teknikservis.com");
+    if (oldAdmin != null)
     {
-        adminUser = new ApplicationUser
-        {
-            UserName = "admin@teknikservis.com",
-            Email = "admin@teknikservis.com",
-            FirstName = "Sistem",
-            LastName = "Yöneticisi"
-        };
-        await userManager.CreateAsync(adminUser, "Admin123!");
+        await userManager.DeleteAsync(oldAdmin); // Eski hesabý acýmadan sil
     }
 
-    // 3. Kullanýcýya "Admin" rolü atanmamýþsa KESÝNLÝKLE ata
-    if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+    // 3. Yepyeni ve Tam Yetkili Admin'i yaratýyoruz
+    var newAdmin = new ApplicationUser
     {
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+        UserName = "admin@teknikservis.com",
+        Email = "admin@teknikservis.com",
+        FirstName = "Sistem",
+        LastName = "Yöneticisi"
+    };
+
+    var createResult = await userManager.CreateAsync(newAdmin, "Admin123!");
+
+    // 4. Yeni admine zorla "Admin" rolünü atýyoruz
+    if (createResult.Succeeded)
+    {
+        await userManager.AddToRoleAsync(newAdmin, "Admin");
     }
 }
 
-// Uygulamayý baþlat
 app.Run();
