@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -45,8 +46,9 @@ namespace TeknikServis.Web.Pages.Employees
                 IsActive = user.IsActive
             };
 
-            // Ekleme sayfasýnda (Create) kusursuz çalýþan Rol çekme kodunun aynýsý!
-            AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList()!;
+            // DÜZELTÝLEN KISIM: Rolleri asenkron ve güvenli þekilde çekiyoruz
+            var allRoles = await _roleManager.Roles.ToListAsync();
+            AvailableRoles = allRoles.Select(r => r.Name!).ToList();
 
             return Page();
         }
@@ -55,7 +57,8 @@ namespace TeknikServis.Web.Pages.Employees
         {
             if (!ModelState.IsValid)
             {
-                AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList()!;
+                var allRoles = await _roleManager.Roles.ToListAsync();
+                AvailableRoles = allRoles.Select(r => r.Name!).ToList();
                 return Page();
             }
 
@@ -72,20 +75,15 @@ namespace TeknikServis.Web.Pages.Employees
             if (!updateResult.Succeeded)
             {
                 foreach (var error in updateResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
-                AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList()!;
+                var allRoles = await _roleManager.Roles.ToListAsync();
+                AvailableRoles = allRoles.Select(r => r.Name!).ToList();
                 return Page();
             }
 
             if (!string.IsNullOrWhiteSpace(Input.Password))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var passResult = await _userManager.ResetPasswordAsync(user, token, Input.Password);
-                if (!passResult.Succeeded)
-                {
-                    foreach (var error in passResult.Errors) ModelState.AddModelError(string.Empty, error.Description);
-                    AvailableRoles = _roleManager.Roles.Select(r => r.Name).ToList()!;
-                    return Page();
-                }
+                await _userManager.ResetPasswordAsync(user, token, Input.Password);
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
@@ -105,22 +103,11 @@ namespace TeknikServis.Web.Pages.Employees
         public class InputModel
         {
             public string Id { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Ad zorunludur.")]
-            public string FirstName { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Soyad zorunludur.")]
-            public string LastName { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Email zorunludur."), EmailAddress]
-            public string Email { get; set; } = string.Empty;
-
-            [MinLength(6, ErrorMessage = "Þifre en az 6 karakter olmalý.")]
-            public string? Password { get; set; }
-
-            [Required(ErrorMessage = "Rol seçimi zorunludur.")]
-            public string Role { get; set; } = string.Empty;
-
+            [Required(ErrorMessage = "Ad zorunludur.")] public string FirstName { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Soyad zorunludur.")] public string LastName { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Email zorunludur."), EmailAddress] public string Email { get; set; } = string.Empty;
+            [MinLength(6, ErrorMessage = "Þifre en az 6 karakter olmalý.")] public string? Password { get; set; }
+            [Required(ErrorMessage = "Rol seçimi zorunludur.")] public string Role { get; set; } = string.Empty;
             public bool IsActive { get; set; }
         }
     }
