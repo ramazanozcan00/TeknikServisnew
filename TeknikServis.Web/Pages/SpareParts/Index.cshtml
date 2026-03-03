@@ -1,73 +1,70 @@
 ﻿@page
 @model TeknikServis.Web.Pages.SpareParts.IndexModel
 @{
-    ViewData["Title"] = "Stok ve Yedek Parça Yönetimi";
+    ViewData["Title"] = "Depo ve Stok Yönetimi";
 }
 
 <div class="row align-items-center mb-4">
     <div class="col">
-        <h2 class="page-title"><i class="ti ti-packages me-2"></i> Depo / Yedek Parça Stokları</h2>
+        <h2 class="page-title"><i class="ti ti-packages me-2 text-primary"></i> Yedek Parça ve Stok Deposu</h2>
     </div>
-    <div class="col-auto ms-auto d-print-none">
+    <div class="col-auto ms-auto">
         <a asp-page="/SpareParts/Create" class="btn btn-primary">
-            <i class="ti ti-plus me-1"></i> Yeni Yedek Parça Ekle
+            <i class="ti ti-plus me-1"></i> Yeni Parça / Stok Ekle
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Mevcut Stok Listesi</h3>
-        <div class="ms-auto text-muted">
-            <form method="get" class="d-inline-block">
-                <div class="input-icon">
-                    <span class="input-icon-addon"><i class="ti ti-search"></i></span>
-                    <input type="text" name="SearchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Parça Adı veya Kodu...">
-                </div>
-            </form>
-        </div>
-    </div>
+<div class="card shadow-sm">
     <div class="table-responsive">
-        <table class="table card-table table-vcenter">
-            <thead>
-                <tr>
-                    <th>Barkod/Kod</th>
-                    <th>Parça Adı</th>
-                    <th>Mevcut Stok</th>
-                    <th>Alış Fiyatı</th>
-                    <th>Satış Fiyatı</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.SpareParts.Any())
-                {
-                    foreach (var part in Model.SpareParts)
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter text-nowrap">
+                <thead>
+                    <tr>
+                        <th>Barkod/Kod</th>
+                        <th>Parça Adı</th>
+                        <th>Mevcut Stok</th>
+                        <th>Alış Fiyatı</th>
+                        <th>Satış Fiyatı</th>
+                        <th class="text-end">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.SpareParts.Any())
                     {
-                        // Kritik stok seviyesinin altına düşerse satır rengini kırmızı uyarıya çeviriyoruz!
-                        bool isCritical = part.StockQuantity <= part.CriticalStockLevel;
-                        string rowClass = isCritical ? "table-danger" : "";
-                        string textClass = isCritical ? "text-danger fw-bold" : "text-success fw-bold";
+                        foreach (var part in Model.SpareParts)
+                        {
+                            bool isCritical = part.StockQuantity <= part.CriticalStockLevel;
+                            string rowClass = isCritical ? "table-danger" : "";
+                            string textClass = isCritical ? "text-danger fw-bold" : "text-success fw-bold";
 
-                        <tr class="@rowClass">
-                            <td><span class="badge bg-secondary-lt">@part.Code</span></td>
-                            <td class="fw-bold">@part.Name</td>
-                            <td>
-                                <span class="@textClass fs-3">@part.StockQuantity</span> <span class="text-muted small">@part.Unit</span>
-                                @if (isCritical)
-                                {
-                                    <i class="ti ti-alert-triangle text-danger ms-1" title="Kritik Stok Seviyesi!"></i>
-                                }
-                            </td>
-                            <td>@part.PurchasePrice.ToString("C2")</td>
-                            <td>@part.SalePrice.ToString("C2")</td>
-                        </tr>
+                            <tr class="@rowClass">
+                                <td><span class="badge bg-secondary-lt">@part.Code</span></td>
+                                <td class="fw-bold">@part.Name</td>
+                                <td>
+                                    <span class="@textClass fs-3">@part.StockQuantity</span> <span class="text-muted small">@part.Unit</span>
+                                    @if (isCritical)
+                                    {
+                                        <i class="ti ti-alert-triangle text-danger ms-1" title="Kritik Stok Seviyesi!"></i>
+                                    }
+                                </td>
+                                <td>@part.PurchasePrice.ToString("C2")</td>
+                                <td>@part.SalePrice.ToString("C2")</td>
+
+                                <td class="text-end">
+                                    <a asp-page="./Edit" asp-route-id="@part.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="ti ti-edit me-1"></i> Düzenle
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
-                }
-                else
-                {
-                    <tr><td colspan="5" class="text-center py-4 text-muted">Depoda kayıtlı yedek parça bulunmuyor.</td></tr>
-                }
-            </tbody>
-        </table>
+                    else
+                    {
+                        <tr><td colspan="6" class="text-center py-4 text-muted">Depoda kayıtlı yedek parça bulunmuyor.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

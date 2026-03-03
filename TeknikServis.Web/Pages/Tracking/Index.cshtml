@@ -1,0 +1,133 @@
+﻿@page
+@model TeknikServis.Web.Pages.Tracking.IndexModel
+@{
+    Layout = null; // Menülerin gelmemesi için Layout'u iptal ediyoruz
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cihaz Takip Portalı - TeknikServis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+    <style>
+        body {
+            background-color: #f4f6fa;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tracking-card {
+            max-width: 700px;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column border-top-wide border-primary">
+    <div class="page page-center">
+        <div class="container container-tight py-4 tracking-card">
+
+            <div class="text-center mb-4">
+                <h1 class="m-0 text-primary display-5"><i class="ti ti-device-mobile-search me-2"></i>Cihaz Takip Portalı</h1>
+                <p class="text-muted mt-2 fs-3">Servise bıraktığınız cihazınızın durumunu anlık öğrenin.</p>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <form method="get" class="mb-0">
+                        <label class="form-label fs-3">İş Emri (Kayıt) Numarası</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="text" name="WorkOrderNo" value="@Model.WorkOrderNo" class="form-control form-control-lg text-uppercase" placeholder="Örn: TS-2026..." required>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary btn-lg" aria-label="Sorgula">
+                                    <i class="ti ti-search me-2"></i> Sorgula
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger bg-white shadow-sm">
+                    <div class="d-flex">
+                        <div><i class="ti ti-alert-triangle fs-2 me-3 text-danger"></i></div>
+                        <div class="fs-3">@Model.ErrorMessage</div>
+                    </div>
+                </div>
+            }
+
+            @if (Model.TrackingResult != null)
+            {
+                string statusStr = Model.TrackingResult.Status.ToString();
+                int step = 1;
+                if (statusStr == "IslemeAlindi" || statusStr == "OnayBekliyor") step = 2;
+                if (statusStr == "Tamamlandi") step = 3;
+                if (statusStr == "TeslimEdildi") step = 4;
+                if (statusStr == "IptalEdildi" || statusStr == "Iptal") step = 0; // İptal durumu
+
+                <div class="card shadow-sm border-top-wide border-success">
+                    <div class="card-header bg-dark text-white">
+                        <h3 class="card-title m-0">Kayıt Detayı: @Model.TrackingResult.WorkOrderNo</h3>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <div class="text-muted mb-1">Müşteri</div>
+                                <div class="fw-bold fs-3">@Model.TrackingResult.CustomerNameMasked</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="text-muted mb-1">Kayıt Tarihi</div>
+                                <div class="fw-bold fs-3">@Model.TrackingResult.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-light p-3 rounded mb-5">
+                            <div class="text-muted text-uppercase small mb-1">CİHAZ VE ARIZA BİLGİSİ</div>
+                            <div class="fw-bold fs-2 text-primary">@Model.TrackingResult.DeviceName</div>
+                            <div class="text-muted mt-2">@Model.TrackingResult.FaultDescription</div>
+                        </div>
+
+                        @if (step > 0)
+                        {
+                            <h4 class="text-center mb-4 text-muted">ONARIM SÜRECİ</h4>
+                            <ul class="steps steps-green steps-counter my-4">
+                                <li class="step-item @(step >= 1 ? "active" : "")">Kayıt Açıldı</li>
+                                <li class="step-item @(step >= 2 ? "active" : "")">İşlemde</li>
+                                <li class="step-item @(step >= 3 ? "active" : "")">Hazır</li>
+                                <li class="step-item @(step >= 4 ? "active" : "")">Teslim</li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger text-center">
+                                <h3 class="m-0"><i class="ti ti-x me-2"></i> BU İŞLEM İPTAL EDİLMİŞTİR</h3>
+                            </div>
+                        }
+
+                        @if (Model.TrackingResult.TotalPrice > 0)
+                        {
+                            <div class="text-center mt-5 p-3 border rounded border-warning bg-warning-lt">
+                                <div class="text-muted">Toplam Tutar</div>
+                                <h2 class="display-6 fw-bold text-dark m-0">@Model.TrackingResult.TotalPrice.ToString("C2")</h2>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            }
+
+            <div class="text-center text-muted mt-4">
+                &copy; @DateTime.Now.Year Tüm Hakları Saklıdır
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
