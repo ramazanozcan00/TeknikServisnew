@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TeknikServis.Application.Features.SpareParts.DTOs;
 using TeknikServis.Application.Features.SpareParts.Queries;
 
 namespace TeknikServis.Web.Pages.SpareParts

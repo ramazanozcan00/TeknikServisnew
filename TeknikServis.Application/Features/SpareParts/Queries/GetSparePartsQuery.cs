@@ -1,19 +1,20 @@
-﻿using MediatR;
-
-using System;
+﻿using Mapster;
+using MediatR;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TeknikServis.Application.Common.Models;
+using TeknikServis.Application.Features.SpareParts.DTOs; // 1. GERÇEK DTO'YU BURADAN ÇAĞIRIYORUZ
 using TeknikServis.Application.Interfaces;
 using TeknikServis.Domain.Entities;
 
 namespace TeknikServis.Application.Features.SpareParts.Queries
 {
-    public record GetSparePartsQuery() : IRequest<Result<List<SparePartDto>>>;
+    // Arama özelliği de eklenmiş tam sürüm
+    public record GetSparePartsQuery(string? SearchTerm = null) : IRequest<Result<List<SparePartDto>>>;
 
-    public record SparePartDto(Guid Id, string Name, string Code, decimal PurchasePrice, decimal SalePrice, int StockQuantity, string Unit);
+    // NOT: BURADAKİ EKSİK 'public record SparePartDto' SATIRINI TAMAMEN SİLDİK!
 
     public class GetSparePartsQueryHandler : IRequestHandler<GetSparePartsQuery, Result<List<SparePartDto>>>
     {
@@ -23,9 +24,17 @@ namespace TeknikServis.Application.Features.SpareParts.Queries
         public async Task<Result<List<SparePartDto>>> Handle(GetSparePartsQuery request, CancellationToken cancellationToken)
         {
             var parts = await _repository.GetAllAsync(cancellationToken);
-            var dtos = parts.Select(p => new SparePartDto(
-                p.Id, p.Name, p.Code, p.PurchasePrice, p.SalePrice, p.StockQuantity, p.Unit
-            )).OrderBy(p => p.Name).ToList();
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                var search = request.SearchTerm.ToLower();
+                parts = parts.Where(p =>
+                    p.Name.ToLower().Contains(search) ||
+                    p.Code.ToLower().Contains(search)).ToList();
+            }
+
+            // Mapster ile orijinal DTO'na otomatik çeviriyoruz
+            var dtos = parts.OrderBy(p => p.Name).Adapt<List<SparePartDto>>();
 
             return Result<List<SparePartDto>>.Success(dtos);
         }

@@ -1,0 +1,93 @@
+﻿@page "{id:Guid}"
+@model TeknikServis.Web.Pages.SpareParts.EditModel
+@{
+    ViewData["Title"] = "Parça Düzenle";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h2 class="page-title"><i class="ti ti-edit me-2 text-primary"></i> Yedek Parça / Stok Düzenle</h2>
+    </div>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <form method="post">
+        <input type="hidden" asp-for="Input.Id" />
+
+        <div class="card-body p-4">
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label class="form-label required">Parça Adı</label>
+                    <input asp-for="Input.Name" class="form-control" required />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label required">Stok Kodu / Barkod</label>
+                    <input asp-for="Input.Code" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="row bg-light p-3 rounded mb-3 border">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <label class="form-label text-muted">Alış Fiyatı (Maliyet)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₺</span>
+                        <input asp-for="Input.PurchasePrice" type="number" step="0.01" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-primary required">Satış Fiyatı</label>
+                    <div class="input-group border-primary">
+                        <span class="input-group-text bg-primary text-white">₺</span>
+                        <input asp-for="Input.SalePrice" type="number" step="0.01" class="form-control text-primary fw-bold" required />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kritik Stok Uyarı Seviyesi</label>
+                    <div class="input-group">
+                        <input asp-for="Input.CriticalLevel" type="number" class="form-control" />
+                        <span class="input-group-text bg-light text-muted">Altına düşerse uyar</span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required">Stok Birimi</label>
+                    <select asp-for="Input.Unit" class="form-select">
+                        <option value="Adet">Adet</option>
+                        <option value="Metre">Metre</option>
+                        <option value="Paket">Paket</option>
+                        <option value="Kutu">Kutu</option>
+                        <option value="Litre">Litre</option>
+                        <option value="Gram">Gram</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-4 mb-0">
+                <div class="d-flex">
+                    <div><i class="ti ti-info-circle me-3 fs-2 text-info"></i></div>
+                    <div>
+                        <h4 class="alert-title text-info m-0">Güvenlik Bilgisi</h4>
+                        <div class="text-muted mt-1">Stok miktarını bu ekrandan doğrudan değiştiremezsiniz. Mevcut stoğu etkilemez. Sisteme stok eklemek veya düşmek için fatura girişi ya da iş emri işlemleri yapılmalıdır.</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-footer text-end bg-light">
+            <a asp-page="./Index" class="btn btn-link link-secondary">İptal Et</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy me-2"></i> Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</div>
