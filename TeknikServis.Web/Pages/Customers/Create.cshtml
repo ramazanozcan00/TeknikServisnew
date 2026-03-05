@@ -5,22 +5,12 @@
 }
 
 <div class="row align-items-center mb-4">
-    <div class="col">
-        <h2 class="page-title">
-            <i class="ti ti-user-plus me-2"></i> Yeni Müşteri Kaydı
-        </h2>
-    </div>
-    <div class="col-auto ms-auto d-print-none">
-        <a asp-page="/Customers/Index" class="btn btn-ghost-secondary">
-            <i class="ti ti-arrow-left me-2"></i> Listeye Dön
-        </a>
-    </div>
+    <div class="col"><h2 class="page-title"><i class="ti ti-user-plus me-2"></i> Yeni Müşteri Kaydı</h2></div>
+    <div class="col-auto ms-auto d-print-none"><a asp-page="/Customers/Index" class="btn btn-ghost-secondary"><i class="ti ti-arrow-left me-2"></i> Listeye Dön</a></div>
 </div>
 
 <div class="card">
-    <div class="card-header bg-primary-lt">
-        <h3 class="card-title">Müşteri Bilgileri</h3>
-    </div>
+    <div class="card-header bg-primary-lt"><h3 class="card-title">Müşteri Bilgileri</h3></div>
     <div class="card-body">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
@@ -28,50 +18,71 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.FirstName" class="form-label required">Ad</label>
-                    <input asp-for="Input.FirstName" class="form-control" placeholder="Müşterinin adı" />
+                    <input asp-for="Input.FirstName" class="form-control" />
                     <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.LastName" class="form-label required">Soyad</label>
-                    <input asp-for="Input.LastName" class="form-control" placeholder="Müşterinin soyadı" />
+                    <input asp-for="Input.LastName" class="form-control" />
                     <span asp-validation-for="Input.LastName" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.Email" class="form-label required">E-Posta Adresi</label>
-                    <input asp-for="Input.Email" type="email" class="form-control" placeholder="ornek@mail.com" />
+                    <input asp-for="Input.Email" type="email" class="form-control" />
                     <span asp-validation-for="Input.Email" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.PhoneNumber" class="form-label required">Telefon Numarası</label>
-                    <input asp-for="Input.PhoneNumber" class="form-control" placeholder="05XX XXX XX XX" />
+                    <input asp-for="Input.PhoneNumber" class="form-control" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
                 </div>
 
                 <div class="col-12"><hr /></div>
 
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Input.TaxNumber" class="form-label">TC Kimlik / Vergi Numarası</label>
-                    <input asp-for="Input.TaxNumber" class="form-control" placeholder="11 haneli TC veya 10 haneli Vergi No" />
+                    <label asp-for="Input.City" class="form-label required">İl</label>
+                    <select asp-for="Input.City" class="form-select" id="citySelect">
+                        <option value="">-- İl Seçiniz --</option>
+                        <option value="İstanbul">İstanbul</option>
+                        <option value="Ankara">Ankara</option>
+                        <option value="İzmir">İzmir</option>
+                        <option value="Bursa">Bursa</option>
+                        <option value="Antalya">Antalya</option>
+                    </select>
+                    <span asp-validation-for="Input.City" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.District" class="form-label required">İlçe</label>
+                    <select asp-for="Input.District" class="form-select" id="districtSelect" disabled>
+                        <option value="">Önce İl Seçiniz</option>
+                    </select>
+                    <span asp-validation-for="Input.District" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label asp-for="Input.Address" class="form-label">Açık Adres (Mahalle, Sokak vb.)</label>
+                    <textarea asp-for="Input.Address" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="col-12"><hr /></div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Input.TaxNumber" class="form-label">TC / Vergi Numarası</label>
+                    <input asp-for="Input.TaxNumber" class="form-control" />
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="Input.TaxOffice" class="form-label">Vergi Dairesi</label>
-                    <input asp-for="Input.TaxOffice" class="form-control" placeholder="Kurumsal müşteriler için" />
-                </div>
-                <div class="col-12 mb-3">
-                    <label asp-for="Input.Address" class="form-label">Açık Adres</label>
-                    <textarea asp-for="Input.Address" class="form-control" rows="2" placeholder="Mahalle, Sokak, No, İlçe/İl"></textarea>
+                    <input asp-for="Input.TaxOffice" class="form-control" />
                 </div>
                 <div class="col-12 mb-3">
                     <label asp-for="Input.Notes" class="form-label">Özel Notlar</label>
-                    <textarea asp-for="Input.Notes" class="form-control" rows="2" placeholder="Müşteriyle ilgili eklemek istediğiniz notlar..."></textarea>
+                    <textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea>
                 </div>
             </div>
 
             <div class="form-footer text-end mt-4 border-top pt-3">
                 <a asp-page="/Customers/Index" class="btn btn-link link-secondary">İptal</a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="ti ti-device-floppy me-2"></i> Müşteriyi Kaydet
-                </button>
+                <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-2"></i> Müşteriyi Kaydet</button>
             </div>
         </form>
     </div>
@@ -79,4 +90,39 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // İllere göre ilçeleri tutan veri sözlüğü (Database yormamak için frontend'de tutulur)
+        const districtsData = {
+            "İstanbul": ["Kadıköy", "Beşiktaş", "Şişli", "Üsküdar", "Maltepe", "Pendik", "Esenyurt", "Fatih", "Bakırköy"],
+            "Ankara": ["Çankaya", "Keçiören", "Yenimahalle", "Mamak", "Etimesgut", "Sincan", "Altındağ", "Gölbaşı"],
+            "İzmir": ["Karşıyaka", "Konak", "Bornova", "Buca", "Çiğli", "Gaziemir", "Balçova", "Urla"],
+            "Bursa": ["Osmangazi", "Nilüfer", "Yıldırım", "İnegöl", "Gemlik", "Mudanya"],
+            "Antalya": ["Muratpaşa", "Kepez", "Konyaaltı", "Alanya", "Manavgat", "Döşemealtı"]
+        };
+
+        const citySelect = document.getElementById('citySelect');
+        const districtSelect = document.getElementById('districtSelect');
+
+        citySelect.addEventListener('change', function() {
+            const selectedCity = this.value;
+
+            // İlçe kutusunu temizle
+            districtSelect.innerHTML = '<option value="">-- İlçe Seçiniz --</option>';
+
+            if(selectedCity && districtsData[selectedCity]) {
+                // Seçilen ile ait ilçeleri kutuya doldur
+                districtsData[selectedCity].forEach(function(district) {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+                districtSelect.disabled = false; // Kutuyu aktif et
+            } else {
+                // İl seçilmediyse veya listede yoksa kutuyu kilitle
+                districtSelect.innerHTML = '<option value="">Önce İl Seçiniz</option>';
+                districtSelect.disabled = true;
+            }
+        });
+    </script>
 }

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using TeknikServis.Application.Features.Customers.Commands;
 
 namespace TeknikServis.Web.Pages.Customers
@@ -9,7 +10,6 @@ namespace TeknikServis.Web.Pages.Customers
     public class CreateModel : PageModel
     {
         private readonly IMediator _mediator;
-
         public CreateModel(IMediator mediator) => _mediator = mediator;
 
         [BindProperty]
@@ -17,22 +17,18 @@ namespace TeknikServis.Web.Pages.Customers
 
         public class CreateInputModel
         {
-            [Required(ErrorMessage = "Ad alaný zorunludur.")]
-            public string FirstName { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Ad alaný zorunludur.")] public string FirstName { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Soyad alaný zorunludur.")] public string LastName { get; set; } = string.Empty;
+            [Required(ErrorMessage = "E-Posta zorunludur.")][EmailAddress] public string Email { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Telefon numarasý zorunludur.")] public string PhoneNumber { get; set; } = string.Empty;
 
-            [Required(ErrorMessage = "Soyad alaný zorunludur.")]
-            public string LastName { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "E-Posta zorunludur.")]
-            [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
-            public string Email { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Telefon numarasý zorunludur.")]
-            public string PhoneNumber { get; set; } = string.Empty;
-
-            // Yeni Alanlar
             public string? TaxNumber { get; set; }
             public string? TaxOffice { get; set; }
+
+            // YENÝ EKLENEN ALANLAR
+            [Required(ErrorMessage = "Ýl seçimi zorunludur.")] public string City { get; set; } = string.Empty;
+            [Required(ErrorMessage = "Ýlçe seçimi zorunludur.")] public string District { get; set; } = string.Empty;
+
             public string? Address { get; set; }
             public string? Notes { get; set; }
         }
@@ -43,23 +39,18 @@ namespace TeknikServis.Web.Pages.Customers
         {
             if (!ModelState.IsValid) return Page();
 
-            // Formdan gelen tüm verileri Kuryeye veriyoruz
             var command = new CreateCustomerCommand(
-                Input.FirstName,
-                Input.LastName,
-                Input.Email,
-                Input.PhoneNumber,
-                Input.TaxNumber,
-                Input.TaxOffice,
-                Input.Address,
-                Input.Notes
+                Input.FirstName, Input.LastName, Input.Email, Input.PhoneNumber,
+                Input.TaxNumber, Input.TaxOffice,
+                Input.City, Input.District, // Kuryeye veriyoruz
+                Input.Address, Input.Notes
             );
 
             var result = await _mediator.Send(command);
 
             if (result.IsSuccess)
             {
-                TempData["SuccessMessage"] = "Müþteri baþarýyla eklendi ve Cari Kod atandý.";
+                TempData["SuccessMessage"] = "Müþteri baþarýyla eklendi.";
                 return RedirectToPage("/Customers/Index");
             }
 

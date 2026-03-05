@@ -4,7 +4,6 @@ using TeknikServis.Application.Common.Models;
 
 namespace TeknikServis.Application.Features.Customers.Commands
 {
-    // Yeni alanları komuta ekliyoruz
     public record CreateCustomerCommand(
         string FirstName,
         string LastName,
@@ -12,6 +11,8 @@ namespace TeknikServis.Application.Features.Customers.Commands
         string PhoneNumber,
         string? TaxNumber,
         string? TaxOffice,
+        string? City,     // YENİ EKLENDİ
+        string? District, // YENİ EKLENDİ
         string? Address,
         string? Notes
     ) : IRequest<Result<Guid>>;

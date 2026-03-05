@@ -21,22 +21,21 @@ namespace TeknikServis.Application.Features.Customers.Commands
 
         public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
-            // Yeni parametreleri Domain varlığına gönderiyoruz
             var customer = Customer.Create(
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.PhoneNumber,
-                request.TaxNumber, // Yeni eklendi
-                request.TaxOffice, // Yeni eklendi
-                request.Address,   // Yeni eklendi
-                request.Notes      // Yeni eklendi
-            );
+                request.TaxNumber,
+                request.TaxOffice,
+                request.City,      // YENİ EKLENDİ
+                request.District,  // YENİ EKLENDİ
+                request.Address,
+                request.Notes);
 
             await _repository.AddAsync(customer, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Cari kod zaten Domain (Customer.cs) içinde otomatik oluşturuldu
             return Result<Guid>.Success(customer.Id);
         }
     }
