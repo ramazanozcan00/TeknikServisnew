@@ -67,9 +67,11 @@ namespace TeknikServis.Web.Pages.Customers
 
         public async Task<IActionResult> OnPostAsync()
         {
+            // Form gönderilirken ilçe bilgisinin kaybolmamasý için 
+            // script tarafýnda yaptýðýmýz 'disabled = false' iþlemi veriyi buraya ulaþtýracaktýr.
+
             if (!ModelState.IsValid) return Page();
 
-            // BURASI DÜZELTÝLDÝ: Kuryeye tüm bilgileri sýrasýyla (City ve District dahil) veriyoruz!
             var command = new UpdateCustomerCommand(
                 Input.Id,
                 Input.FirstName,
@@ -78,8 +80,8 @@ namespace TeknikServis.Web.Pages.Customers
                 Input.PhoneNumber,
                 Input.TaxNumber,
                 Input.TaxOffice,
-                Input.City,       // EKLENDÝ
-                Input.District,   // EKLENDÝ
+                Input.City,       //
+                Input.District,   //
                 Input.Address,
                 Input.Notes
             );

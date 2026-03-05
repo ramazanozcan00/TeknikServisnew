@@ -97,8 +97,8 @@
         const citySelect = document.getElementById('citySelect');
         const districtSelect = document.getElementById('districtSelect');
 
-        // Arka plandan (veritabanından) gelen mevcut ilçeyi alıyoruz
-        const selectedDistrict = '@Model.Input.District';
+        // Sunucudan gelen mevcut ilçe bilgisini güvenli şekilde alıyoruz
+        const selectedDistrict = '@Html.Raw(Model.Input.District)';
 
         function populateDistricts(city, defaultDistrict = '') {
             districtSelect.innerHTML = '<option value="">-- İlçe Seçiniz --</option>';
@@ -117,16 +117,20 @@
             }
         }
 
-        // 1. Sayfa yüklendiğinde, eğer il seçiliyse ilçeleri doldur
+        // Sayfa yüklendiğinde mevcut verileri doldur
         document.addEventListener("DOMContentLoaded", function() {
             if(citySelect.value) {
                 populateDistricts(citySelect.value, selectedDistrict);
             }
         });
 
-        // 2. Kullanıcı ili değiştirdiğinde ilçeleri güncelle
         citySelect.addEventListener('change', function() {
             populateDistricts(this.value);
+        });
+
+        // FORM GÖNDERİLİRKEN: Disabled olan kutu veri göndermez, göndermeden hemen önce açıyoruz.
+        document.querySelector('form').addEventListener('submit', function() {
+            districtSelect.disabled = false;
         });
     </script>
 }
