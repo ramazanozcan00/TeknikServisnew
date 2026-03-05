@@ -1,88 +1,107 @@
 ﻿@page
 @model TeknikServis.Web.Pages.Customers.CreateModel
 @{
-    ViewData["Title"] = "Yeni Müşteri Ekle";
+    ViewData["Title"] = "Yeni Müşteri Kaydı";
 }
 
-<div class="row align-items-center mb-4">
-    <div class="col"><h2 class="page-title"><i class="ti ti-user-plus me-2"></i> Yeni Müşteri Kaydı</h2></div>
-    <div class="col-auto ms-auto d-print-none"><a asp-page="/Customers/Index" class="btn btn-ghost-secondary"><i class="ti ti-arrow-left me-2"></i> Listeye Dön</a></div>
-</div>
-
-<div class="card">
-    <div class="card-header bg-primary-lt"><h3 class="card-title">Müşteri Bilgileri</h3></div>
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="fas fa-user-plus"></i> Yeni Müşteri Kaydı (KVKK Onaylı)</h4>
+    </div>
     <div class="card-body">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.FirstName" class="form-label required">Ad</label>
-                    <input asp-for="Input.FirstName" class="form-control" />
-                    <span asp-validation-for="Input.FirstName" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.LastName" class="form-label required">Soyad</label>
-                    <input asp-for="Input.LastName" class="form-control" />
-                    <span asp-validation-for="Input.LastName" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.Email" class="form-label required">E-Posta Adresi</label>
-                    <input asp-for="Input.Email" type="email" class="form-control" />
-                    <span asp-validation-for="Input.Email" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.PhoneNumber" class="form-label required">Telefon Numarası</label>
-                    <input asp-for="Input.PhoneNumber" class="form-control" />
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12"><hr /></div>
-
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.City" class="form-label required">İl</label>
-                    <select asp-for="Input.City" class="form-select" id="citySelect">
-                        <option value="">-- İl Seçiniz --</option>
-                        <option value="İstanbul">İstanbul</option>
-                        <option value="Ankara">Ankara</option>
-                        <option value="İzmir">İzmir</option>
-                        <option value="Bursa">Bursa</option>
-                        <option value="Antalya">Antalya</option>
-                    </select>
-                    <span asp-validation-for="Input.City" class="text-danger small"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.District" class="form-label required">İlçe</label>
-                    <select asp-for="Input.District" class="form-select" id="districtSelect" disabled>
-                        <option value="">Önce İl Seçiniz</option>
-                    </select>
-                    <span asp-validation-for="Input.District" class="text-danger small"></span>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Input.FirstName" class="form-label">Ad</label>
+                        <input asp-for="Input.FirstName" class="form-control" placeholder="Ad giriniz" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.LastName" class="form-label">Soyad</label>
+                        <input asp-for="Input.LastName" class="form-control" placeholder="Soyad giriniz" />
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">E-Posta</label>
+                        <div class="input-group">
+                            <input asp-for="Input.Email" class="form-control" id="customerEmail" placeholder="ornek@mail.com" />
+                            <button type="submit" asp-page-handler="SendCode" class="btn btn-warning">
+                                <i class="fas fa-paper-plane"></i> Kodu Gönder
+                            </button>
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label">Telefon</label>
+                        <input asp-for="Input.PhoneNumber" class="form-control" placeholder="05XX XXX XX XX" />
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
                 </div>
 
-                <div class="col-12 mb-3">
-                    <label asp-for="Input.Address" class="form-label">Açık Adres (Mahalle, Sokak vb.)</label>
-                    <textarea asp-for="Input.Address" class="form-control" rows="2"></textarea>
-                </div>
-
-                <div class="col-12"><hr /></div>
-
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.TaxNumber" class="form-label">TC / Vergi Numarası</label>
-                    <input asp-for="Input.TaxNumber" class="form-control" />
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Input.TaxOffice" class="form-label">Vergi Dairesi</label>
-                    <input asp-for="Input.TaxOffice" class="form-control" />
-                </div>
-                <div class="col-12 mb-3">
-                    <label asp-for="Input.Notes" class="form-label">Özel Notlar</label>
-                    <textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.City" class="form-label">İl</label>
+                            <select asp-for="Input.City" class="form-select" id="citySelect">
+                                <option value="">-- İl Seçiniz --</option>
+                                <option value="İstanbul">İstanbul</option>
+                                <option value="Ankara">Ankara</option>
+                                <option value="İzmir">İzmir</option>
+                                <option value="Bursa">Bursa</option>
+                                <option value="Antalya">Antalya</option>
+                            </select>
+                            <span asp-validation-for="Input.City" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.District" class="form-label">İlçe</label>
+                            <select asp-for="Input.District" class="form-select" id="districtSelect" disabled>
+                                <option value="">Önce İl Seçiniz</option>
+                            </select>
+                            <span asp-validation-for="Input.District" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.TaxOffice" class="form-label">Vergi Dairesi</label>
+                        <input asp-for="Input.TaxOffice" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.TaxNumber" class="form-label">Vergi / T.C. No</label>
+                        <input asp-for="Input.TaxNumber" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Input.Address" class="form-label">Açık Adres</label>
+                        <textarea asp-for="Input.Address" class="form-control" rows="1"></textarea>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-footer text-end mt-4 border-top pt-3">
-                <a asp-page="/Customers/Index" class="btn btn-link link-secondary">İptal</a>
-                <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-2"></i> Müşteriyi Kaydet</button>
+            <div class="mb-3">
+                <label asp-for="Input.Notes" class="form-label">Notlar</label>
+                <textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="card border-info bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-info"><i class="fas fa-shield-alt"></i> KVKK Onay Doğrulaması</h5>
+                    <p class="small text-muted">Müşteri mailine gönderilen 6 haneli kodu aşağıya giriniz.</p>
+                    <div class="row">
+                        <div class="col-md-4 mx-auto">
+                            <input asp-for="VerificationCodeInput" class="form-control form-control-lg text-center fw-bold text-primary"
+                                   placeholder="000000" maxlength="6" style="letter-spacing: 4px;" />
+                            <span asp-validation-for="VerificationCodeInput" class="text-danger d-block text-center mt-1"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+                    <i class="fas fa-save"></i> Müşteriyi Kaydet
+                </button>
+                <a asp-page="./Index" class="btn btn-secondary btn-lg px-4">İptal</a>
             </div>
         </form>
     </div>
@@ -91,7 +110,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // İllere göre ilçeleri tutan veri sözlüğü (Database yormamak için frontend'de tutulur)
+        // İllere göre ilçeleri tutan veri sözlüğü
         const districtsData = {
             "İstanbul": ["Kadıköy", "Beşiktaş", "Şişli", "Üsküdar", "Maltepe", "Pendik", "Esenyurt", "Fatih", "Bakırköy"],
             "Ankara": ["Çankaya", "Keçiören", "Yenimahalle", "Mamak", "Etimesgut", "Sincan", "Altındağ", "Gölbaşı"],
@@ -119,7 +138,6 @@
                 });
                 districtSelect.disabled = false; // Kutuyu aktif et
             } else {
-                // İl seçilmediyse veya listede yoksa kutuyu kilitle
                 districtSelect.innerHTML = '<option value="">Önce İl Seçiniz</option>';
                 districtSelect.disabled = true;
             }

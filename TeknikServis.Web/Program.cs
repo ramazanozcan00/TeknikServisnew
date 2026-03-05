@@ -6,6 +6,8 @@ using TeknikServis.Infrastructure.Persistence;
 using TeknikServis.Infrastructure.Persistence.Repositories;
 using TeknikServis.Application.Features.Customers.Commands;
 using TeknikServis.Infrastructure.Persistence.Identity;
+using TeknikServis.Application.Common.Models;
+using TeknikServis.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +42,8 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IWorkOrderQueryRepository, WorkOrderQueryRepository>();
 builder.Services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>();
-
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 // --- 5. MEDIATR TANITMA ---
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateCustomerCommand).Assembly));
 
