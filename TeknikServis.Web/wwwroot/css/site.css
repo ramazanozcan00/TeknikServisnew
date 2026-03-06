@@ -29,3 +29,121 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+
+/* Modern Kart Hover Efektleri */
+.card-link-pop {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .card-link-pop:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+
+/* Kanban Sütun Tasarýmý */
+.kanban-col {
+    background-color: #f8fafb;
+    border-radius: 8px;
+}
+
+/* Avatar Geliþtirmeleri */
+.avatar-md {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.25rem;
+}
+
+/* Sayfa Geçiþ Efekti (Opsiyonel) */
+.page {
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badge ve Dot Renkleri */
+.badge-outline {
+    border: 1.5px solid currentColor;
+    background: transparent;
+}
+
+
+/* Modern Kart ve Hover Efektleri */
+.card {
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+
+/* Durum Noktalarý */
+.status-dot-animated {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+    .status-dot-animated::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: inherit;
+        opacity: 0.4;
+        animation: pulse 2s infinite;
+    }
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Kanban Sütunlarý */
+.kanban-col {
+    background: #f6f8fb;
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 80vh;
+    border: 1px dashed #e6e8eb;
+}
+
+/* Sayfa Geçiþleri */
+.page-body {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
