@@ -11,7 +11,9 @@
     <div class="col-auto ms-auto d-print-none">
         @if (User.IsInRole("Admin") || User.HasClaim("Permission", "Musteri.Ekle"))
         {
-            <a asp-page="/Customers/Create" class="btn btn-primary">Yeni Müşteri Ekle</a>
+            <a asp-page="/Customers/Create" class="btn btn-primary">
+                <i class="ti ti-plus me-2"></i>Yeni Müşteri Ekle
+            </a>
         }
     </div>
 </div>
@@ -32,10 +34,10 @@
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
-                    <th>Cari Kod</th>
-                    <th>Ad Soyad</th>
-                    <th>İletişim</th>
-                    <th>Kayıt Tarihi</th>
+                    <th><i class="ti ti-hash me-1"></i>Cari Kod</th>
+                    <th><i class="ti ti-user me-1"></i>Ad Soyad</th>
+                    <th><i class="ti ti-phone me-1"></i>İletişim</th>
+                    <th><i class="ti ti-calendar me-1"></i>Kayıt Tarihi</th>
                     <th class="text-end">İşlemler</th>
                 </tr>
             </thead>
@@ -53,7 +55,7 @@
                                     </span>
                                     <div class="flex-fill">
                                         <div class="font-weight-medium">@customer.FirstName @customer.LastName</div>
-                                        <div class="text-muted"><a href="#" class="text-reset">@customer.Email</a></div>
+                                        <div class="text-muted"><a href="mailto:@customer.Email" class="text-reset">@customer.Email</a></div>
                                     </div>
                                 </div>
                             </td>
@@ -63,20 +65,21 @@
                             <td>@customer.CreatedAt.ToShortDateString()</td>
                             <td class="text-end">
                                 <a asp-page="/Customers/Details" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-info">
-                                    <i class="ti ti-eye"></i> Profil
+                                    <i class="ti ti-eye me-1"></i> Profil
                                 </a>
                                 <a asp-page="/Customers/Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-outline-primary ms-1">
-                                    <i class="ti ti-edit"></i> Düzenle
+                                    <i class="ti ti-edit me-1"></i> Düzenle
                                 </a>
-                                <form method="post" asp-page-handler="Delete" asp-route-id="@customer.Id" class="d-inline-block ms-1" onsubmit="return confirm('Bu müşteriyi silmek istediğinize emin misiniz?');">
-                                    
-                                    @if (User.IsInRole("Admin") || User.HasClaim("Permission", "Musteri.Sil"))
-                                    {
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="ti ti-trash"></i> Sil
+
+                                @if (User.IsInRole("Admin") || User.HasClaim("Permission", "Musteri.Sil"))
+                                {
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@customer.Id" id="deleteForm-@customer.Id" class="d-inline-block ms-1">
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="showDeleteModal('@customer.Id', '@customer.FirstName @customer.LastName')">
+                                            <i class="ti ti-trash me-1"></i> Sil
                                         </button>
-                                    }
-                                </form>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }
@@ -84,10 +87,75 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">Kayıtlı müşteri bulunamadı.</td>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="ti ti-database-off fs-1 d-block mb-2"></i>
+                            Kayıtlı müşteri bulunamadı.
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 </div>
+
+@* Modern Silme Onay Modalı *@
+<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <i class="ti ti-alert-triangle fs-huge text-danger mb-2"></i>
+                <h3>Emin misiniz?</h3>
+                <div class="text-muted">
+                    <b id="deleteCustomerName"></b> isimli müşteriyi silmek üzeresiniz. Bu işlem veritabanından kalıcı olarak kaldırılacaktır.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                Vazgeç
+                            </a>
+                        </div>
+                        <div class="col">
+                            <button type="button" id="confirmDeleteBtn" class="btn btn-danger w-100">
+                                Evet, Sil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let activeDeleteFormId = '';
+
+        /**
+         * Silme modalını tetikler ve silinecek verinin ismini modala yazar.
+         * @@param {string} id - Müşteri ID
+         * @@param {string} name - Müşteri Ad Soyad
+         */
+        function showDeleteModal(id, name) {
+            activeDeleteFormId = 'deleteForm-' + id;
+            document.getElementById('deleteCustomerName').innerText = name;
+
+            // Tabler/Bootstrap modalını başlat ve göster
+            var deleteModal = new bootstrap.Modal(document.getElementById('modal-danger'));
+            deleteModal.show();
+        }
+
+        /**
+         * Modal içindeki 'Evet, Sil' butonuna tıklandığında ilgili formu gönderir.
+         */
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (activeDeleteFormId) {
+                document.getElementById(activeDeleteFormId).submit();
+            }
+        });
+    </script>
+}
